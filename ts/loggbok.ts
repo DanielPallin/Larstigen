@@ -1,6 +1,6 @@
-import "../css/global.css";
-import "../css/components.css";
-import "../css/loggbok.css";
+import "/css/global.css";
+import "/css/components.css";
+import "/css/loggbok.css";
 
 import { initGlobalUI } from "./global";
 
