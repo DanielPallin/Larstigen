@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["vite/client"], 
+    "strict": true
+  },
+  "include": ["ts/**/*.ts"]
+}
