@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lärstigen - Logga in</title>
+    
+    <link rel="stylesheet" href="./css/global.css" />
+    <link rel="stylesheet" href="./css/components.css" />
+    <link rel="stylesheet" href="./css/index.css" />
+    
+    <script type="module" src="/ts/login.ts"></script>
+  </head>
+
+  <body>
+    <main class="login-wrapper">
+      
+      <header class="login-header">
+        <img src="assets/L-logo.PNG" alt="Lärstigen logotyp" class="login-logo" />
+        <h1 style="color: var(--primary-green);">Lärstigen</h1>
+      </header>
+
+      <div class="card">
+        
+        <div class="tab-list" role="tablist" aria-label="Inloggningstyp">
+          <button 
+            role="tab" 
+            aria-selected="true" 
+            aria-controls="panel-parent" 
+            id="tab-parent" 
+            class="tab-button" 
+            onclick="switchTab('parent')">
+            Vårdnadshavare
+          </button>
+          <button 
+            role="tab" 
+            aria-selected="false" 
+            aria-controls="panel-staff" 
+            id="tab-staff" 
+            class="tab-button" 
+            onclick="switchTab('staff')">
+            Personal
+          </button>
+        </div>
+
+        <section id="panel-parent" class="tab-panel" role="tabpanel" aria-labelledby="tab-parent">
+          <h2 class="card-title">Logga in</h2>
+          <p class="subtitle" style="margin-bottom: 24px;">
+            Logga in med din e-post för att se ditt barns dag.
+          </p>
+          
+          <form id="parent-login-form" novalidate>
+            <div class="form-group">
+              <label for="parent-email" class="label">E-postadress</label>
+              <input type="email" id="parent-email" class="input-field" placeholder="namn@exempel.se" required autocomplete="username" />
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 24px;">
+              <label for="parent-password" class="label">Lösenord</label>
+              <input type="password" id="parent-password" class="input-field" placeholder="••••••••" required autocomplete="current-password" />
+            </div>
+
+            <button type="submit" class="btn">Logga in</button>
+          </form>
+
+          <div class="divider"><span>eller</span></div>
+
+          <button type="button" class="btn btn-social btn-bankid">
+            Logga in med Mobilt BankID
+          </button>
+
+          <button type="button" class="btn btn-social btn-google">
+            Logga in med Google
+          </button>
+
+          <button type="button" class="btn btn-social btn-apple">
+            Logga in med Apple
+          </button>
+        </section>
+
+        <section id="panel-staff" class="tab-panel" role="tabpanel" aria-labelledby="tab-staff" hidden>
+          <h2 class="card-title">Personalinloggning</h2>
+          <p class="subtitle" style="margin-bottom: 24px;">
+            Logga in med din e-post för att administrera avdelningen.
+          </p>
+          
+          <form id="staff-login-form" novalidate>
+            <div class="form-group">
+              <label for="staff-email" class="label">E-postadress</label>
+              <input type="email" id="staff-email" class="input-field" placeholder="namn@forskola.se" required autocomplete="username" />
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 24px;">
+              <label for="staff-password" class="label">Lösenord</label>
+              <input type="password" id="staff-password" class="input-field" placeholder="••••••••" required autocomplete="current-password" />
+            </div>
+
+            <button type="submit" class="btn">Logga in</button>
+          </form>
+        </section>
+
+      </div>
+    </main>
+
+    <script>
+      function switchTab(role) {
+        const tabParent = document.getElementById('tab-parent');
+        const tabStaff = document.getElementById('tab-staff');
+        const panelParent = document.getElementById('panel-parent');
+        const panelStaff = document.getElementById('panel-staff');
+
+        tabParent.setAttribute('aria-selected', 'false');
+        tabStaff.setAttribute('aria-selected', 'false');
+        panelParent.hidden = true;
+        panelStaff.hidden = true;
+
+        if (role === 'parent') {
+          tabParent.setAttribute('aria-selected', 'true');
+          panelParent.hidden = false;
+        } else if (role === 'staff') {
+          tabStaff.setAttribute('aria-selected', 'true');
+          panelStaff.hidden = false;
+        }
+      }
+    </script>
+  </body>
+</html>
