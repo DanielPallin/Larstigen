@@ -1,4 +1,5 @@
 import { initGlobalUI } from "./global";
+import { supabase } from './api';
 import "/css/global.css";
 import "/css/components.css";
 import "/css/kalender.css";
@@ -14,8 +15,10 @@ interface SvenskDag {
 // Define the shape of our template data from Supabase
 interface ScheduleTemplate {
   id: string;
+  child_id: string;
   name: string;
   is_active: boolean;
+  created_at: string; // Supabase returns timestamps as ISO strings
 }
 
 // --- Application State ---
@@ -161,56 +164,66 @@ async function fetchHolidays(year: number, month: number): Promise<void> {
   }
 }
 
-// Simulated Supabase Fetch
 async function fetchAndRenderTemplates(): Promise<void> {
   const container = document.getElementById("template-list");
   if (!container) return;
 
-  // This is your exact data from the Supabase query!
-  // In the real version, this will be: const { data } = await supabase.from('schedule_template').select('*');
-  const mockSupabaseData: ScheduleTemplate[] = [
-    {
-      "id": "b817d456-9a6b-4e7c-8b21-26e5f8d9c0b1",
-      "name": "Mamma-vecka (Kort fredag)",
-      "is_active": false
-    },
-    {
-      "id": "c942e123-8b7a-4c8f-9d32-15f4e7c8b9a0",
-      "name": "Standard Arbetsvecka",
-      "is_active": true
+  container.innerHTML = `<p class="subtitle">Hämtar dina rullande scheman...</p>`;
+
+  try {
+    // Fetch the data
+    const { data, error } = await supabase
+      .from('schedule_template')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("Supabase error fetching templates:", error);
+      container.innerHTML = `<p class="subtitle" style="color: red;">Ett fel uppstod när scheman skulle laddas. Vänligen försök igen.</p>`;
+      return;
     }
-  ];
 
-  // Clear any existing content
-  container.innerHTML = "";
+    // CAST THE DATA! 
+    // This tells TypeScript: "Trust me, this data is an array of ScheduleTemplates"
+    const scheduleTemplates = data as ScheduleTemplate[];
 
-  // Loop through the data and paint it to the screen
-  mockSupabaseData.forEach((template) => {
-    const card = document.createElement("div");
-    card.className = "template-item";
-    
-    // Check if it's active to render the green badge
-    const activeBadgeHTML = template.is_active 
-      ? `<span class="badge badge-active">Aktiv Nu</span>` 
-      : ``;
+    if (!scheduleTemplates || scheduleTemplates.length === 0) {
+      container.innerHTML = `<p class="subtitle">Du har inga sparade mallar ännu.</p>`;
+      return;
+    }
 
-    // Redigera button is now a small link-like element in the header.
-    // Tillämpa is the main button in the actions div.
-    card.innerHTML = `
-      <div class="template-header">
-        <span class="template-name">
-          ${template.name}
-          ${activeBadgeHTML}
-        </span>
-        <button class="btn-edit-header" data-id="${template.id}">Redigera</button>
-      </div>
-      <div class="template-actions">
-        <button class="btn btn-small" data-id="${template.id}">Tillämpa</button>
-      </div>
-    `;
+    container.innerHTML = "";
 
-    container.appendChild(card);
-  });
+    // Now, when you type `template.`, your IDE will auto-suggest 
+    // .id, .child_id, .name, .is_active, and .created_at!
+    scheduleTemplates.forEach((template) => {
+      const card = document.createElement("div");
+      card.className = "template-item";
+      
+      const activeBadgeHTML = template.is_active 
+        ? `<span class="badge badge-active">Aktiv Nu</span>` 
+        : ``;
+
+      card.innerHTML = `
+        <div class="template-header">
+          <span class="template-name">
+            ${template.name}
+            ${activeBadgeHTML}
+          </span>
+          <button class="btn-edit-header" data-id="${template.id}">Redigera</button>
+        </div>
+        <div class="template-actions">
+          <button class="btn btn-small" data-id="${template.id}">Tillämpa</button>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error("Network error:", err);
+    container.innerHTML = `<p class="subtitle" style="color: red;">Kunde inte ansluta till servern. Kontrollera din uppkoppling.</p>`;
+  }
 }
 
 async function initPage(): Promise<void> {
