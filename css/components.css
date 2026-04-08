@@ -41,18 +41,6 @@
   padding: 15px;
 }
 
-@media (min-width: 768px) {
-  .container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-
-  .full-width {
-    grid-column: span 2;
-  }
-}
-
 /* Cards */
 .card {
   margin-bottom: 15px;
