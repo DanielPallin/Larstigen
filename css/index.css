@@ -1,0 +1,145 @@
+/* Specifik vy-layout för inloggningssidan */
+body {
+  /* Åsidosätt padding-bottom från global.css eftersom vi inte har en botten-meny här */
+  padding-bottom: 0; 
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-wrapper {
+  width: 100%;
+  max-width: 440px; /* Begränsar bredden på större skärmar för bibehållen läsbarhet */
+  padding: 20px;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-logo {
+  width: 80px;
+  height: auto;
+  margin-bottom: 12px;
+}
+
+/* Tillgängliga flikar (Tabs) */
+.tab-list {
+  display: flex;
+  border-bottom: 2px solid var(--border-light);
+  margin-bottom: 24px;
+}
+
+.tab-button {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 12px;
+  font-family: var(--font-header);
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px; /* Skapar en snygg överlappning på den undre kanten */
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.tab-button:hover {
+  color: var(--text-dark);
+}
+
+.tab-button[aria-selected="true"] {
+  color: var(--primary-green);
+  border-bottom-color: var(--primary-green);
+}
+
+/* Formulär */
+.form-group {
+  margin-bottom: 16px;
+}
+
+/* Etiketter (Labels) använder DIN Condensed enligt designskissen */
+.form-group .label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1rem;
+}
+
+.input-field {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  color: var(--text-dark);
+  background-color: var(--bg-light);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary-green);
+  background-color: var(--white);
+}
+
+/* Visuell avdelare */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 24px 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.divider span {
+  padding: 0 16px;
+}
+
+/* Tredjepartsknappar (BankID, Google, Apple) */
+.btn-social {
+  width: 100%;
+  background: var(--white);
+  color: var(--text-dark);
+  border: 1px solid var(--border-light);
+  font-family: var(--font-body); /* Segoe UI för knappar utanför primära flödet */
+  font-weight: 600;
+  text-transform: none;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-social:last-child {
+  margin-bottom: 0;
+}
+
+/* Behåller varumärkesfärger för tydlighet */
+.btn-bankid {
+  background: #1f4f7a;
+  color: var(--white);
+  border: none;
+}
+
+.btn-apple {
+  background: #000000;
+  color: var(--white);
+  border: none;
+}
+
+/* Döljer inaktiva flikinnehåll tillgängligt */
+.tab-panel[hidden] {
+  display: none;
+}

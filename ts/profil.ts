@@ -1,6 +1,6 @@
-import "../css/global.css";
-import "../css/components.css";
-import "../css/profil.css";
+import "/css/global.css";
+import "/css/components.css";
+import "/css/profil.css";
 
 import { initGlobalUI } from "./global";
 
