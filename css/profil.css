@@ -1,0 +1,122 @@
+/* Specifik profil-stil */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.avatar {
+  width: 60px;  /* Samma storlek för alla */
+  height: 60px;
+  background: var(--primary-green);
+  color: white;
+  border-radius: 50%; /* Skapar den perfekta cirkeln */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-header);
+  font-size: 1.5rem;
+  overflow: hidden; /* Döljer delar av bilden som hamnar utanför cirkeln */
+  box-shadow: var(--shadow-soft);
+  flex-shrink: 0; /* Förhindrar att avataren trycks ihop */
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.section-title {
+  margin: 24px 0 12px 5px;
+  color: var(--text-dark);
+  font-family: var(--font-header);
+  text-transform: uppercase;
+  font-size: 1.2rem;
+  letter-spacing: 0.5px;
+}
+
+/* Modifiering av .card för barnen (vänster-bar) */
+.card-child {
+  border-left: 6px solid var(--card-color, var(--primary-green));
+  /* Ser till att hörnen på vänster sida blir något rundade trots tjock border */
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+/* Etikett med barnets namn (som i din bild) */
+.name-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* Redigera-knapp */
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.btn-edit {
+  background: none;
+  border: none;
+  color: var(--primary-green);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-edit:hover {
+  opacity: 0.8;
+}
+
+.tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+  margin-bottom: 16px;
+}
+
+.tag {
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tag-danger {
+  background: #ffe5e5;
+  color: #d32f2f;
+  border: 1px solid #ffbaba;
+}
+
+.note-box {
+  background: var(--light-blue);
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-top: 4px;
+  border-left: 4px solid var(--accent-blue);
+}
+
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#profile-container .label {
+  font-weight: bold;
+  color: var(--text-dark); /* Garanterar att färgen är mörk och tydlig */
+  margin-bottom: 4px; /* Lite luft mellan rubrik och tagg */
+}
