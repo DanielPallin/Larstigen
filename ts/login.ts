@@ -25,7 +25,7 @@ async function handleLogin(e: Event, emailId: string, passwordId: string) {
     console.error("Login error:", error.message);
   } else {
     // SUCCESS! Skicka användaren dashboard
-    window.location.href = "pages/dashboard.html";
+    window.location.href = "/pages/dashboard.html";
   }
 }
 
