@@ -164,6 +164,33 @@ async function fetchHolidays(year: number, month: number): Promise<void> {
   }
 }
 
+async function applyTemplate(templateId: string, childId: string): Promise<void> {
+  try {
+    // 1. Bulk Deactivation: Turn off all templates for this child
+    const { error: resetError } = await supabase
+      .from('schedule_template')
+      .update({ is_active: false })
+      .eq('child_id', childId);
+
+    if (resetError) throw resetError;
+
+    // 2. Targeted Activation: Turn on the selected template
+    const { error: activateError } = await supabase
+      .from('schedule_template')
+      .update({ is_active: true })
+      .eq('id', templateId);
+
+    if (activateError) throw activateError;
+
+    // 3. Refresh the UI to show the new "Aktiv Nu" badge
+    await fetchAndRenderTemplates();
+
+  } catch (error) {
+    console.error("Kunde inte tillämpa mallen:", error);
+    alert("Ett fel uppstod när mallen skulle aktiveras. Försök igen.");
+  }
+}
+
 async function fetchAndRenderTemplates(): Promise<void> {
   const container = document.getElementById("template-list");
   if (!container) return;
@@ -213,11 +240,30 @@ async function fetchAndRenderTemplates(): Promise<void> {
           <button class="btn-edit-header" data-id="${template.id}">Redigera</button>
         </div>
         <div class="template-actions">
-          <button class="btn btn-small" data-id="${template.id}">Tillämpa</button>
+          <button class="btn btn-small btn-apply" data-id="${template.id}">
+            ${template.is_active ? 'Vald' : 'Tillämpa'}
+          </button>
         </div>
       `;
 
       container.appendChild(card);
+
+      // --- NEW: Add Event Listener to the newly created button ---
+      const applyBtn = card.querySelector('.btn-apply') as HTMLButtonElement;
+      
+      // If it's already active, we can disable the button to prevent redundant DB calls
+      if (template.is_active) {
+        applyBtn.disabled = true;
+        applyBtn.style.opacity = "0.6"; // Visual cue that it's disabled
+        applyBtn.style.cursor = "default";
+      } else {
+        applyBtn.addEventListener('click', async () => {
+          // UX touch: Give instant feedback that something is happening
+          applyBtn.textContent = "Uppdaterar...";
+          applyBtn.style.opacity = "0.7";
+          await applyTemplate(template.id, template.child_id);
+        });
+      }
     });
 
   } catch (err) {
