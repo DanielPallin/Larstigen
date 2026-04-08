@@ -9,16 +9,25 @@
 }
 
 .avatar {
-  width: 60px;
+  width: 60px;  /* Samma storlek för alla */
   height: 60px;
   background: var(--primary-green);
   color: white;
-  border-radius: 50%;
+  border-radius: 50%; /* Skapar den perfekta cirkeln */
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-header);
   font-size: 1.5rem;
+  overflow: hidden; /* Döljer delar av bilden som hamnar utanför cirkeln */
+  box-shadow: var(--shadow-soft);
+  flex-shrink: 0; /* Förhindrar att avataren trycks ihop */
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .section-title {
@@ -104,4 +113,10 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+#profile-container .label {
+  font-weight: bold;
+  color: var(--text-dark); /* Garanterar att färgen är mörk och tydlig */
+  margin-bottom: 4px; /* Lite luft mellan rubrik och tagg */
 }
