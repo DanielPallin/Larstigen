@@ -1,0 +1,113 @@
+:root {
+    --primary-green: #9DAA75;
+    --accent-blue: #AED5EB;
+    --light-blue: #E3F5FF;
+    --bg-gray: #ECECEC;
+    --dark-text: #49433E;
+    --white: #FFFFFF;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif; /* Enligt profil */
+    background-color: var(--bg-gray);
+    color: var(--dark-text);
+    margin: 0;
+    padding-bottom: 80px;
+}
+
+/* h1, h2, h3, .section-title {
+    font-family: 'DIN Condensed', sans-serif; /* Enligt profil
+    text-transform: uppercase;
+} */
+
+/* Header & Logo morphing */
+header {
+    background: var(--white);
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid var(--bg-gray);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+header.scrolled {
+    padding: 5px;
+}
+
+.logo-container img {
+    height: 80px;
+    transition: all 0.3s ease;
+}
+
+header.scrolled .logo-container img {
+    height: 40px;
+}
+
+/* Alert */
+.alert {
+    background: #fff3f3; /* Ljus röd för uppmärksamhet */
+    border: 1px solid #ffcccc;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 5px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-weight: bold;
+}
+
+/* Accordion styling */
+.accordion-item {
+    background: var(--light-blue);
+    margin: 5px 10px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+summary {
+    padding: 15px;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    font-weight: bold;
+    border-bottom: 1px solid var(--accent-blue);
+}
+
+.menu-week {
+    font-weight: normal;
+    font-size: 1rem;
+}
+.content {
+    padding: 15px;
+    background: var(--white);
+}
+
+/* Bottom Nav */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: var(--white);
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    border-top: 1px solid var(--bg-gray);
+    transition: transform 0.3s;
+}
+
+.bottom-nav.hidden { transform: translateY(100%); }
+
+.bottom-nav img {
+    width: 30px;
+    opacity: 0.6;
+}
+
+.bottom-nav a.active img {
+    opacity: 1;
+    filter: sepia(100%) saturate(300%) hue-rotate(40deg); /* Ger ikonerna en grön ton */
+}
