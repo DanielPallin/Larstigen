@@ -1,6 +1,5 @@
 import { supabase } from "./api";
-import "../css/global.css"
-import "../css/components.css";
+
 
 // 1. Fånga upp båda formulären
 const parentLoginForm = document.getElementById("parent-login-form");
