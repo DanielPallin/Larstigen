@@ -3,8 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lärstigen - Kalender</title>
-    <script type="module" src="/ts/kalender.ts"></script>
+    <title>Lärstigen - Omsorgsschema</title>
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/kalender.css" />
+    <script type="module" src="../ts/kalender.ts"></script>
   </head>
 
   <body>
@@ -14,12 +17,64 @@
       </div>
     </header>
 
-    <main class="container">
+  <div class="container">
+    
+    <div class="view-controls full-width">
+      <button class="view-btn" data-target="view-create">Skapa Schema</button>
+      <button class="view-btn active" data-target="view-schema">Schema</button>
+      <button class="view-btn" data-target="view-overview">Översikt</button>
+    </div>
 
-      <p>Stevens sida</p>
+    <div id="view-create" class="view-section active-view full-width" style="display: none;">
+      
+      <div class="card full-width">
+        <h3 class="card-title">📋 Mina Mallar</h3>
+        <p class="subtitle" style="margin-bottom: 15px;">Dina sparade rullande scheman.</p>
+        
+        <div id="template-list"></div>
 
-    </main>
+        <div class="apply-all-container">
+          <input type="checkbox" id="apply-all-children">
+          <label for="apply-all-children">Tillämpa mall till alla mina barn</label>
+        </div>
 
+        <button class="btn btn-accent">
+          + Skapa ny mall
+        </button>
+      </div>
+
+      </div>
+
+    <div id="view-schema" class="view-section full-width">
+      <div class="card full-width">
+        <h3 class="card-title" style="text-align: center;">Bekräftat Schema kommer här</h3>
+      </div>
+    </div>
+
+    <div id="view-overview" class="view-section full-width" style="display: none;">
+      <div class="card full-width">
+        <div class="week-header">
+          <button class="btn btn-small" id="btn-prev-month">◀</button>
+          <h3 class="card-title week-title" id="month-title-display">April 2026</h3>
+          <button class="btn btn-small" id="btn-next-month">▶</button>
+        </div>
+        
+        <div class="month-grid" id="month-grid">
+          <div class="month-day-header">M</div>
+          <div class="month-day-header">T</div>
+          <div class="month-day-header">O</div>
+          <div class="month-day-header">T</div>
+          <div class="month-day-header">F</div>
+          <div class="month-day-header">L</div>
+          <div class="month-day-header">S</div>
+          
+         </div>
+      </div>
+    </div>
+
+  </div>
+
+<!-- >>>>>>> main -->
     <nav class="bottom-nav">
       <a href="dashboard.html" class="nav-item">
         <span class="nav-icon" data-icon="home" aria-hidden="true"></span>
@@ -46,6 +101,5 @@
         <span class="sr-only">Profil</span>
       </a>
     </nav>
-
-  </body>
+</body>
 </html>
