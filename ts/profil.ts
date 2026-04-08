@@ -1,4 +1,8 @@
 import { supabase } from './api';
+import { initGlobalUI } from "./global";
+import "/css/global.css";
+import "/css/components.css";
+import "/css/dashboard.css";
 
 // --- 1. TYPESCRIPT INTERFACES ---
 interface Caregiver {
@@ -44,6 +48,8 @@ async function getAvatarUrl(fileName: string | null): Promise<string | null> {
 
 // --- 3. HUVUDFUNKTION ---
 async function initProfile(): Promise<void> {
+  await initGlobalUI();
+  
   const container = document.getElementById('profile-container');
   if (!container) return;
 

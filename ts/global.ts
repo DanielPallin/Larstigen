@@ -7,7 +7,7 @@ async function fetchIcon(name: string): Promise<string> {
     return iconCache.get(name)!;
   }
 
-  const response = await fetch(`/assets/icons/${name}.svg`);
+  const response = await fetch(`/icons/${name}.svg`);
 
   if (!response.ok) {
     throw new Error(`Kunde inte ladda ikon: ${name}`);
