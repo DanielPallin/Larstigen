@@ -81,6 +81,13 @@ function setupWeekNavigation(): void {
 }
 
 // MONTHLY CALENDAR FUNCTIONS
+async function updateMonthDisplay(titleDisplay: HTMLElement): Promise<void> {
+  // Update the text in the header
+  titleDisplay.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+  // Re-run the generation function with the new state
+  await generateMonthView(currentYear, currentMonth);
+}
+
 function setupMonthNavigation(): void {
   const btnPrev = document.getElementById("btn-prev-month");
   const btnNext = document.getElementById("btn-next-month");
@@ -105,13 +112,6 @@ function setupMonthNavigation(): void {
     }
     updateMonthDisplay(titleDisplay);
   });
-}
-
-function updateMonthDisplay(titleDisplay: HTMLElement): void {
-  // Update the text in the header
-  titleDisplay.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-  // Re-run the generation function with the new state
-  generateMonthView(currentYear, currentMonth);
 }
 
 async function fetchInfoEvents(year: number, month: number): Promise<InfoEvent[]> {
@@ -347,9 +347,9 @@ async function initPage(): Promise<void> {
   await fetchAndRenderTemplates();
   
   // Set the initial month view on load
-  generateMonthView(currentYear, currentMonth); 
+  await generateMonthView(currentYear, currentMonth); 
 
-  fetchHolidays(2026, 4); // Testing for April 2026
+  // fetchHolidays(2026, 4); // Testing for April 2026
 }
 
 initPage();
