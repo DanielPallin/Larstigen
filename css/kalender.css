@@ -134,6 +134,7 @@ input[type="time"] {
 }
 
 .month-day {
+  position: relative; /* Container needs relative positioning now to hold the absolute dot */
   padding: 10px 0;
   border-radius: 5px;
   background: var(--bg-light);
@@ -160,6 +161,25 @@ input[type="time"] {
   color: var(--white);
   font-weight: bold;
   border: none;
+}
+
+/* Subtle event indicator */
+.event-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  background-color: var(--accent-blue); /* The calm blue from your global variables */
+  border-radius: 50%;
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Make red days slightly red to stand out as holidays */
+.month-day.weekend {
+  color: #e74c3c; /* Red text for weekends/holidays */
+  background: transparent;
 }
 
 /* =========================================
