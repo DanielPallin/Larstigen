@@ -34,6 +34,7 @@
     "eslint": "^10.1.0",
     "globals": "^17.4.0",
     "jsdom": "^29.0.2",
+    "typescript": "^6.0.2",
     "vite-plugin-static-copy": "^4.0.1",
     "vitest": "^4.1.2"
   },
