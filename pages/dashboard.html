@@ -1,13 +1,17 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="sv">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lärstigen - Hem</title>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DASHBOARD</title>
+  <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <script type="module" src="/ts/global.ts"></script>
     <script type="module" src="/ts/dashboard.ts"></script>
-  </head>
+</head>
+<body>
 
-  <body>
     <header class="site-header">
       <div class="header-inner">
         <img src="../assets/L-logo.png" alt="Lärstigen logotyp" class="logo-small" />
@@ -15,9 +19,68 @@
     </header>
 
     <main class="container">
+      <section class="page-title">
+        <h1>Överblick</h1>
+      </section>
 
-      <p>Hannas sida</p>
+      <section class="card">
+        <h2>Välj barn</h2>
+        <div id="child-filter" class="siblings-list"></div>
+      </section>
 
+      <section class="card">
+        <h2>Viktig information</h2>
+        <ul id="important-updates" class="info-list"></ul>
+      </section>
+
+      <section class="card">
+  <h2>Vem hämtar idag</h2>
+
+  <form id="pickup-form" class="stack">
+    <p id="pickup-selected-children" class="selected-children-text">
+      Välj barn högst upp först
+    </p>
+
+    <label class="field">
+      <span>Namn:</span>
+      <input
+        type="text"
+        id="pickup-name"
+        name="pickupName"
+        placeholder="Skriv namn här"
+        required
+      />
+    </label>
+
+    <button type="submit" class="primary-button">Spara</button>
+  </form>
+
+  <div id="pickup-results" class="stack-sm"></div>
+</section>
+
+      <section class="card">
+        <h2>Frånvaroanmälan</h2>
+
+        <form id="absence-form" class="stack">
+          <p id="selected-children-text" class="selected-children-text">
+            Välj barn högst upp först
+          </p>
+
+          <label class="field">
+            <span>Frånvaro datum:</span>
+            <input type="date" id="absence-date" required />
+          </label>
+
+          <button type="submit" id="absence-button" class="danger-button" disabled>
+            Anmäl frånvaro
+          </button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Kommande händelser</h2>
+        <ul id="upcoming-events" class="info-list"></ul>
+      </section>
     </main>
 
     <nav class="bottom-nav">
