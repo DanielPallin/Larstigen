@@ -12,6 +12,12 @@ interface SvenskDag {
   helgdag?: string;
 }
 
+// Define the shape of our returning holiday data
+interface PublicHoliday {
+  datum: string;
+  helgdag: string;
+}
+
 // Define the shape of our template data from Supabase
 interface ScheduleTemplate {
   id: string;
