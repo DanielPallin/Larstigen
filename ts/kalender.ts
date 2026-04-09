@@ -113,6 +113,32 @@ function updateMonthDisplay(titleDisplay: HTMLElement): void {
   generateMonthView(currentYear, currentMonth);
 }
 
+async function fetchInfoEvents(year: number, month: number): Promise<InfoEvent[]> {
+  // JavaScript months are 0-indexed, so we add 1 and pad with '0' (e.g., '04' for April)
+  const paddedMonth = String(month + 1).padStart(2, '0');
+  
+  // First day of the month
+  const startDate = `${year}-${paddedMonth}-01`;
+  
+  // Last day of the month (Date object trick: day 0 of the next month is the last day of the current month)
+  const endOfMonthDay = new Date(year, month + 1, 0).getDate();
+  const endDate = `${year}-${paddedMonth}-${endOfMonthDay}`;
+
+  const { data, error } = await supabase
+    .from('info')
+    .select('id, title, content, event_date')
+    .not('event_date', 'is', null)
+    .gte('event_date', startDate)
+    .lte('event_date', endDate);
+
+  if (error) {
+    console.error("Kunde inte hämta händelser från Supabase:", error);
+    return [];
+  }
+
+  return data as InfoEvent[];
+}
+
 function generateMonthView(year: number, month: number): void {
   const grid = document.getElementById("month-grid");
   if (!grid) return;
