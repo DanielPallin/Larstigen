@@ -1,29 +1,46 @@
 .section-title {
-  margin: 20px 0 10px;
-  color: var(--text-dark);
+    margin: 24px 0 12px 5px;
+    color: var(--text-dark);
+    font-family: var(--font-header);
+    text-transform: uppercase;
+    font-size: 1.2rem;
 }
 
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    gap: 12px;
+    margin: 15px 0 25px 0;
+    overflow-x: auto;
+    padding: 5px 2px;
+    scrollbar-width: none;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+
+.filter-btn {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    background: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.filter-btn.active {
+    border-color: var(--primary-green);
+    background: var(--primary-green);
+    color: white;
+}
+
+/* Log Cards */
 .log-card {
-  border-left: 8px solid var(--child-color, var(--primary-green));
-  position: relative;
-  overflow: hidden;
-}
-
-.log-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.child-badge {
-  background: var(--child-color);
-  color: var(--text-dark);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  text-transform: uppercase;
+    border-left: 8px solid var(--child-color, var(--primary-green));
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
 }
 
 .log-media {
@@ -35,17 +52,13 @@
     display: block;
 }
 
-.media-container {
-    width: 100%;
-    margin-bottom: 10px;
-}
-
+/* Reactions */
 .reaction-area {
     display: flex;
-    flex-wrap: wrap; /* Tillåter knapparna att hoppa ner på ny rad om det är trångt */
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 15px;
-    padding-top: 10px;
+    padding-top: 15px;
     border-top: 1px solid var(--border-light);
 }
 
@@ -59,41 +72,19 @@
     border-radius: 20px;
     font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.2s ease;
 }
 
 .btn-react.active {
     background: var(--light-blue);
     border-color: var(--accent-blue);
-    color: var(--text-dark);
 }
 
-.reaction-emoji {
-    font-size: 1.1rem;
-}
-
-.reaction-label {
-    font-weight: 600;
-}
-
-.reaction-count {
-    background: rgba(0, 0, 0, 0.05);
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-size: 0.75rem;
-}
-
-/* Grundläge: Dold */
-#history-container {
+/* Historik */
+.history-hidden {
     display: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
 }
-
-/* När klassen .show läggs till via JS */
-#history-container.show {
+.history-hidden.show {
     display: block;
-    opacity: 1;
 }
 
 .btn-history {
@@ -109,24 +100,18 @@
     text-transform: uppercase;
     cursor: pointer;
 }
-/* Toast styling */
-.toast {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--text-dark);
-  color: white;
-  padding: 12px 24px;
-  border-radius: 30px;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  transition: opacity 0.3s;
-  min-width: 200px;
-  max-width: 80%; /* Förhindrar att den går utanför skärmen på mobilen */
-  text-align: center;
-  line-height: 1.4;
-  white-space: normal; /* Tillåter radbrytning */
-}
 
-.hidden { opacity: 0; pointer-events: none; }
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text-dark);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 30px;
+    z-index: 1000;
+    transition: opacity 0.3s;
+}
+.toast.hidden { opacity: 0; pointer-events: none; }

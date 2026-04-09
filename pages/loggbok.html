@@ -17,16 +17,18 @@
     </header>
 
     <main class="container">
+      <div id="child-filter-container" class="filter-bar"></div>
+
       <section id="today-section">
         <h3 class="section-title">Idag</h3>
         <div id="today-container">
-           <p class="subtitle">Laddar dagens inlägg...</p>
+           <p class="subtitle">Laddar inlägg...</p>
         </div>
       </section>
 
       <section id="history-section">
         <button id="btn-show-history" class="btn-history">Se tidigare dagar</button>
-        <div id="history-container">
+        <div id="history-container" class="history-hidden">
           </div>
       </section>
     </main>
@@ -35,7 +37,7 @@
 
     <nav class="bottom-nav">
       <a href="dashboard.html" class="nav-item">
-        <span class="nav-icon" data-icon="home" aria-hidden="true"></span>
+        <span class="nav-icon" data-icon="home"></span>
         <span class="sr-only">Dashboard</span>
       </a>
       <a href="kalender.html" class="nav-item">
