@@ -18,6 +18,14 @@ interface PublicHoliday {
   helgdag: string;
 }
 
+// Define the shape of our preschool info events
+interface InfoEvent {
+  id: string;
+  title: string;
+  content: string;
+  event_date: string; // YYYY-MM-DD
+}
+
 // Define the shape of our template data from Supabase
 interface ScheduleTemplate {
   id: string;
@@ -27,12 +35,15 @@ interface ScheduleTemplate {
   created_at: string; // Supabase returns timestamps as ISO strings
 }
 
-// Define the shape of our preschool info events
-interface InfoEvent {
+// Define the shape of our concrete schedule entries
+interface ScheduleEntry {
   id: string;
-  title: string;
-  content: string;
-  event_date: string; // YYYY-MM-DD
+  child_id: string;
+  date: string;
+  drop_off_time: string;
+  pick_up_time: string;
+  approval_status: 'pending' | 'approved' | 'rejected';
+  comment: string | null;
 }
 
 // --- Application State ---
