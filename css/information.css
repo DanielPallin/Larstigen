@@ -78,6 +78,13 @@ summary {
     background: var(--white);
 }
 
+.accordion-menu-item {
+    background: var(--light-blue);
+    margin: 5px 10px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
 /* Menu */
 
 .week-navigation {

@@ -233,7 +233,7 @@ async function fetchMenuData(departmentId: string | null): Promise<MenuPost[]> {
     return data || [];
 }
 
-async function renderMenuSection(allMenus: MenuPost[], childDeptId: string | null) {
+export async function renderMenuSection(allMenus: MenuPost[], childDeptId: string | null) {
     const menuContainer = document.getElementById('menu-accordion-container');
     if (!menuContainer) return;
 
@@ -269,7 +269,7 @@ async function renderMenuSection(allMenus: MenuPost[], childDeptId: string | nul
 
     menuContainer.innerHTML = `
        <h3 class="card-title">🍴 MATSEDEL</h3>
-        <details class="accordion-item menu-main-item" ${isCurrentlyOpen ? 'open' : ''}>
+        <details class="accordion-menu-item" ${isCurrentlyOpen ? 'open' : ''}>
             <summary>
                 <div class="summary-content">
                     <span><strong>Dagens lunch:</strong> ${todayTitle}</span>
@@ -302,7 +302,7 @@ async function renderMenuSection(allMenus: MenuPost[], childDeptId: string | nul
 }
 
 // Hjälpfunktion för veckonummer
-function getWeekNumber(d: Date): number {
+export function getWeekNumber(d: Date): number {
     const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
     date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
     const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
