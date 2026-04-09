@@ -2,6 +2,13 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    // 👇 HÄR ÄR MAGIN FÖR GITHUB ACTIONS: 
+    // Vi ger Vitest låtsas-nycklar så att api.ts aldrig kraschar när den byggs i molnet!
+    env: {
+      VITE_SUPABASE_URL: 'https://latsas-url.supabase.co',
+      VITE_SUPABASE_ANON_KEY: 'latsas-nyckel'
+    },
+
     // 1. Leta efter testfiler i BÅDE unit- och integration-mapparna. 
     // Vi lägger till stöd för både .js och .ts (TypeScript).
     include: [
