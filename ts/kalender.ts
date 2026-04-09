@@ -47,7 +47,7 @@ interface ScheduleEntry {
 }
 
 // --- Application State ---
-let currentWeek = 42;
+let currentWeek = 16; // Change this from 42 to 16
 let currentMonth = 3; // 0 = Jan, 3 = April
 let currentYear = 2026;
 
@@ -124,12 +124,10 @@ async function fetchAndRenderWeeklySchedule(childId: string): Promise<void> {
   const container = document.getElementById("view-schema");
   if (!container) return;
 
-  // For testing, we are hardcoding the dates to match your Supabase mock data.
-  // In a production app, these would be calculated dynamically based on `currentWeek`.
-  const weekStart = '2026-04-13'; 
-  const weekEnd = '2026-04-19';
+  // 1. Calculate dynamic dates based on the global state
+  const { start: weekStart, end: weekEnd } = getDatesOfWeek(currentWeek, currentYear);
 
-  container.innerHTML = `<div class="card full-width"><p class="subtitle" style="text-align: center;">Hämtar veckans schema...</p></div>`;
+  container.innerHTML = `<div class="card full-width"><p class="subtitle" style="text-align: center;">Hämtar vecka ${currentWeek}...</p></div>`;
 
   try {
     const { data, error } = await supabase
@@ -142,68 +140,80 @@ async function fetchAndRenderWeeklySchedule(childId: string): Promise<void> {
 
     if (error) throw error;
 
-    // Cast the data using our new strict interface
     const entries = data as ScheduleEntry[];
 
-    if (!entries || entries.length === 0) {
-      container.innerHTML = `
-        <div class="card full-width">
-          <h3 class="card-title" style="text-align: center;">Vecka ${currentWeek}</h3>
-          <p class="subtitle" style="text-align: center;">Inget schema inlagt för denna vecka.</p>
-        </div>`;
-      return;
-    }
-
-    // Build the Card UI
+    // 2. Build the Header with Navigation Buttons
     let html = `
       <div class="card full-width">
         <div class="week-header">
-          <h3 class="card-title week-title">Vecka ${currentWeek}</h3>
+          <button class="btn btn-small" id="btn-prev-week-schema">◀</button>
+          <h3 class="card-title week-title" style="margin: 0 15px;">Vecka ${currentWeek}</h3>
+          <button class="btn btn-small" id="btn-next-week-schema">▶</button>
         </div>
     `;
 
-    // Loop through the days and paint them
-    entries.forEach(entry => {
-      // Determine the visual status indicator based on the ENUM
-      let statusIcon = '⏳';
-      let statusText = 'Väntar';
-      let statusColor = 'var(--text-muted)'; // Default grey
-      
-      if (entry.approval_status === 'approved') {
-        statusIcon = '✅';
-        statusText = 'Bekräftad';
-        statusColor = 'var(--primary-green)';
-      } else if (entry.approval_status === 'rejected') {
-        statusIcon = '❌';
-        statusText = 'Nekad';
-        statusColor = '#e74c3c'; // Error red
-      }
+    // 3. Handle Empty State
+    if (!entries || entries.length === 0) {
+      html += `<p class="subtitle" style="text-align: center; margin-top: 15px;">Inget schema inlagt för denna vecka.</p></div>`;
+    } else {
+      // 4. Render Days
+      entries.forEach(entry => {
+        let statusIcon = '⏳';
+        let statusText = 'Väntar';
+        let statusColor = 'var(--text-muted)';
+        
+        if (entry.approval_status === 'approved') {
+          statusIcon = '✅';
+          statusText = 'Bekräftad';
+          statusColor = 'var(--primary-green)';
+        } else if (entry.approval_status === 'rejected') {
+          statusIcon = '❌';
+          statusText = 'Nekad';
+          statusColor = '#e74c3c';
+        }
 
-      // Clean up the time formatting (removing the :00 seconds from the DB)
-      const dropOff = entry.drop_off_time ? entry.drop_off_time.substring(0, 5) : '-';
-      const pickUp = entry.pick_up_time ? entry.pick_up_time.substring(0, 5) : '-';
+        const dropOff = entry.drop_off_time ? entry.drop_off_time.substring(0, 5) : '-';
+        const pickUp = entry.pick_up_time ? entry.pick_up_time.substring(0, 5) : '-';
+        const dayName = new Date(entry.date).toLocaleDateString('sv-SE', { weekday: 'short' }).toUpperCase();
 
-      // Use the native JS Date object to get the Swedish short weekday name (e.g., "MÅN")
-      const dayName = new Date(entry.date).toLocaleDateString('sv-SE', { weekday: 'short' }).toUpperCase();
-
-      html += `
-        <div class="day-row" style="justify-content: space-between;">
-          <div style="display: flex; gap: 15px; align-items: center;">
-            <div class="day-name">${dayName}</div>
-            <div class="time-display" style="font-weight: bold;">
-              ${dropOff} - ${pickUp}
+        html += `
+          <div class="day-row" style="justify-content: space-between;">
+            <div style="display: flex; gap: 15px; align-items: center;">
+              <div class="day-name">${dayName}</div>
+              <div class="time-display" style="font-weight: bold;">
+                ${dropOff} - ${pickUp}
+              </div>
+            </div>
+            <div class="status-indicator" style="color: ${statusColor}; font-size: 0.9rem;" title="Status: ${entry.approval_status}">
+              ${statusIcon} ${statusText}
             </div>
           </div>
-          <div class="status-indicator" style="color: ${statusColor}; font-size: 0.9rem;" title="Status: ${entry.approval_status}">
-            ${statusIcon} ${statusText}
-          </div>
-        </div>
-        ${entry.comment ? `<div style="font-size: 0.85rem; color: var(--text-muted); margin-left: 55px; margin-bottom: 10px;">💬 ${entry.comment}</div>` : ''}
-      `;
+          ${entry.comment ? `<div style="font-size: 0.85rem; color: var(--text-muted); margin-left: 55px; margin-bottom: 10px;">💬 ${entry.comment}</div>` : ''}
+        `;
+      });
+      html += `</div>`;
+    }
+
+    container.innerHTML = html;
+
+    // 5. Attach Event Listeners to the newly created buttons
+    document.getElementById("btn-prev-week-schema")?.addEventListener("click", () => {
+      currentWeek--;
+      if (currentWeek < 1) {
+        currentWeek = 52;
+        currentYear--;
+      }
+      fetchAndRenderWeeklySchedule(childId);
     });
 
-    html += `</div>`;
-    container.innerHTML = html;
+    document.getElementById("btn-next-week-schema")?.addEventListener("click", () => {
+      currentWeek++;
+      if (currentWeek > 52) {
+        currentWeek = 1;
+        currentYear++;
+      }
+      fetchAndRenderWeeklySchedule(childId);
+    });
 
   } catch (error) {
     console.error("Kunde inte hämta veckoschemat:", error);
