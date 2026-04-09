@@ -7,7 +7,7 @@ import "/css/dashboard.css";
 
 type ChildColor = "blue" | "yellow" | "green" | "red";
 
-const DEFAULT_ABSENCE_TYPE_ID = "0c6b9018-16b2-419a-b7d7-d6642fef2940";
+const DEFAULT_ABSENCE_TYPE_ID = "0c6b9018-16b2-419a-b7d7-d6642fef2940"; // Tillfälligt hårdkodad standardtyp
 
 interface Caregiver {
   id: string;
@@ -612,12 +612,13 @@ function initAbsenceForm(caregiverId: string): void {
     const dateValue = absenceDateInput.value;
 
     const rows = selectedChildren.map((childId) => ({
-      reported_by_caregiver_id: caregiverId,
-      child_id: childId,
-      start_date: dateValue,
-      end_date: dateValue,
-      comment: null,
-    }));
+    reported_by_caregiver_id: caregiverId,
+    child_id: childId,
+    absence_type_id: DEFAULT_ABSENCE_TYPE_ID,
+    start_date: dateValue,
+    end_date: dateValue,
+    comment: null,
+  }));
 
     const { error } = await supabase.from("absence").insert(rows);
 
