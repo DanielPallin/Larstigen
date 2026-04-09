@@ -21,6 +21,14 @@ interface ScheduleTemplate {
   created_at: string; // Supabase returns timestamps as ISO strings
 }
 
+// Define the shape of our preschool info events
+interface InfoEvent {
+  id: string;
+  title: string;
+  content: string;
+  event_date: string; // YYYY-MM-DD
+}
+
 // --- Application State ---
 let currentWeek = 42;
 let currentMonth = 3; // 0 = Jan, 3 = April
