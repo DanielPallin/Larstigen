@@ -30,6 +30,12 @@ interface RelationData {
   child: ChildData | null;
 }
 
+export function getInitials(firstName?: string | null, lastName?: string | null): string {
+  const first = firstName ? firstName.charAt(0).toUpperCase() : '';
+  const last = lastName ? lastName.charAt(0).toUpperCase() : '';
+  return `${first}${last}`;
+}
+
 // --- 2. HJÄLPFUNKTION FÖR BILDER ---
 async function getAvatarUrl(fileName: string | null): Promise<string | null> {
   if (!fileName) return null;

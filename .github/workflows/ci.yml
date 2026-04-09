@@ -23,29 +23,29 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # Vi byter ut hårdkodade 24 mot variabeln från matrisen
-      - name:  Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name:  Install dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name:  Run linter
+      - name: Run linter
         run: npm run lint
 
-      - name:  Run unit tests
-        run: npm test
+      # FIXEN: Kör BARA Vitest (unit & integration), eftersom Playwright körs senare!
+      - name: Run unit and integration tests
+        run: npm run test:unit
 
-      - name:  Install Playwright browsers
+      - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name:  Run e2e tests
+      - name: Run e2e tests
         run: npm run test:e2e
 
-      - name:  Upload Playwright report
+      - name: Upload Playwright report
         uses: actions/upload-artifact@v4
         if: always()
         with:
