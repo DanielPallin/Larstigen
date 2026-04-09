@@ -172,6 +172,12 @@ async function generateMonthView(year: number, month: number): Promise<void> {
   const grid = document.getElementById("month-grid");
   if (!grid) return;
 
+  // --- NEW: Flush the details container when the month changes ---
+  const detailsContainer = document.getElementById("day-details-container");
+  if (detailsContainer) {
+    detailsContainer.innerHTML = "";
+  }
+
   // Visual feedback while fetching
   grid.style.opacity = "0.5"; 
 
