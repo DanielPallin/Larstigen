@@ -42,6 +42,7 @@ async function getAvatarUrl(fileName: string | null): Promise<string> {
 
 async function getInformationPageData() {
     const container = document.querySelector('.container');
+    
     if (!container) return;
 
     try {
@@ -90,7 +91,6 @@ async function getInformationPageData() {
         }
 
         // Eftersom Daniel har flera barn, väljer vi det första i listan för att visa informationen
-        // (Vill du visa båda barnen kan vi bygga en loop senare)
         const firstRelation = relations[0] as any;
         const myChild = firstRelation.child as unknown as Child;
 
@@ -123,40 +123,63 @@ async function renderInformation(child: Child, notes: InfoPost[]) {
 
     const avatarUrl = await getAvatarUrl(child.profile_image_url);
 
-    // Profilkort (Överst)
+    // 1. Profilkort (Elfie)
     const welcomeHtml = `
         <div class="card">
             <img class="active-pic" src="${avatarUrl}" alt="${child.first_name}">
             <div class="profile-text">
-                <h3>${child.first_name}</h3>
+                <h3><strong>${child.first_name}</strong></h3>
                 <p>Avdelning: ${child.department?.name || 'Ej angiven'}</p>
             </div>
+                    <h1 class="card-title">⚠️ Viktig information</h1>
         </div>
     `;
 
-    // Notiser (Dina snygga kort/alerts)
-    const notesHtml = notes.map(note => {
-        const isGlobal = note.department_id === null;
-        
-        if (isGlobal) {
-            return `
-                <div class="alert">
-                    <span class="alert-icon" data-icon="alert-circle"></span>
-                    <span><strong>${note.title}</strong><br>${note.content}</span>
-                </div>
-            `;
-        } else {
-            return `
-                <div class="card">
-                    <h3 class="card-title">⚠️ ${note.title}</h3>
-                    <p>${note.content}</p>
-                </div>
-            `;
-        }
-    }).join('');
+    // Delar upp notiserna i två grupper
+    const globalNotes = notes.filter(n => n.department_id === null);
+    const departmentNotes = notes.filter(n => n.department_id !== null);
 
-    container.innerHTML = welcomeHtml + notesHtml;
-    await loadIcons(); // Ladda ikonerna efter att HTML har skapats
+    // Hjälpfunktion för att skapa HTML för en notis
+    // Lägger till en parameter 'type' för att kunna sätta olika CSS-klasser
+    const createNoteHtml = (note: InfoPost, type: 'global' | 'dept') => `
+        <details class="accordion-item note-${type}">
+            <summary>
+                ${type === 'global' ? '❗' : '🏠'} ${note.title} 
+                <span>+</span>
+            </summary>
+            <div class="content">
+                <p>${note.content}</p>
+            </div>
+        </details>
+    `;
+
+    // 4. Bygg ihop de två sektionerna
+    let sectionsHtml = '';
+
+    // Sektion för hela förskolan (Globala)
+    if (globalNotes.length > 0) {
+        sectionsHtml += `
+            <div class="card card-global">
+                <h3 class="card-title">📢 HELA FÖRSKOLAN</h3>
+                ${globalNotes.map(n => createNoteHtml(n, 'global')).join('')}
+            </div>
+        `;
+    }
+
+    // Sektion för avdelningen
+    if (departmentNotes.length > 0) {
+        sectionsHtml += `
+            <div class="card card-department">
+                <h3 class="card-title">🌳 AVDELNING ${child.department?.name?.toUpperCase() || 'INFO'}</h3>
+                ${departmentNotes.map(n => createNoteHtml(n, 'dept')).join('')}
+            </div>
+        `;
+    }
+
+    // 5. Skriv ut allt
+    container.innerHTML = welcomeHtml + sectionsHtml;
+
+    // await loadIcons(); // Ladda ikonerna efter att HTML har skapats
 }
 
 // Starta allt
