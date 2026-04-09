@@ -1,4 +1,4 @@
-import { defineConfig, configDefaults } from 'vitest/config';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
@@ -7,8 +7,6 @@ export default defineConfig({
     include: [
       'tests/unit/**/*.{test,spec}.{js,ts}',
       'tests/integration/**/*.{test,spec}.{js,ts}',
-      // Om ni inte har lagt testerna i specifika mappar kan du istället använda:
-      // '**/*.{test,spec}.{js,ts}' 
     ],
     
     // 2. Säg till Vitest att ignorera Playwrights E2E-tester, 
