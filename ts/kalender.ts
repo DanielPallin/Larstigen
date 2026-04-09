@@ -528,13 +528,14 @@ async function initPage(): Promise<void> {
   setupWeekNavigation();
   setupMonthNavigation();
 
-  // Fetch and render our templates!
-  await fetchAndRenderTemplates();
-  
-  // Set the initial month view on load
-  await generateMonthView(currentYear, currentMonth); 
+  const currentChildId = "03974556-db9a-448b-a3a0-a8d4aa1fc498";
 
-  // fetchHolidays(2026, 4); // Testing for April 2026
+  // Run all our data fetches concurrently for maximum speed on page load!
+  await Promise.all([
+    fetchAndRenderTemplates(),
+    generateMonthView(currentYear, currentMonth),
+    fetchAndRenderWeeklySchedule(currentChildId)
+  ]);
 }
 
 initPage();
