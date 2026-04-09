@@ -2,6 +2,9 @@ import { supabase } from './api';
 import { initGlobalUI, loadIcons } from "./global";
 
 const childColors = ['#aed5eb', '#ffeaa7', '#9daa75', '#ffcdcd'];
+let currentFilter: string = 'all'; 
+let cachedRelations: any[] = [];
+let globalCaregiverId: string = '';
 
 const REACTION_MAP: Record<string, { emoji: string, label: string }> = {
     'LÄST':   { emoji: '👀', label: 'Läst' },
@@ -10,7 +13,6 @@ const REACTION_MAP: Record<string, { emoji: string, label: string }> = {
     'TACK':   { emoji: '🙏', label: 'Tack' }
 };
 
-// Hjälpfunktion för att säkra text (XSS-skydd)
 const escapeHTML = (str: string) => {
     if (!str) return "";
     return str.toString().replace(/[&<>"']/g, m => ({
@@ -21,77 +23,34 @@ const escapeHTML = (str: string) => {
 async function initLogbook(): Promise<void> {
     await initGlobalUI();
     
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session) {
-        window.location.href = "/index.html";
-        return;
-    }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { window.location.href = "/index.html"; return; }
 
-    // Hämta e-post från sessionen
     let userEmail = session.user.email || "";
+    if (userEmail === "test@test.test") userEmail = "daniel.pallin@example.se";
 
-    // Om du fortfarande behöver Daniel Pallin-fixen för testkontot, 
-    // lägg den här (men Gemini Code Assist har rätt i att det är en "dirty fix")
-    if (userEmail === "test@test.test") {
-        userEmail = "daniel.pallin@example.se"; 
-    }
-
-    const { data: caregiver, error: caregiverError } = await supabase
+    const { data: caregiver } = await supabase
         .from('caregiver')
         .select('id')
         .eq('email', userEmail)
-        .maybeSingle(); // Ändrat från .single() för att undvika 406-fel
+        .maybeSingle();
 
-    if (caregiverError) {
-        console.error("Databasfel vid sökning av vårdnadshavare:", caregiverError);
-        return;
-    }
+    if (!caregiver) return;
+    globalCaregiverId = caregiver.id;
 
-    if (!caregiver) {
-        console.error("Ingen vårdnadshavare hittades i tabellen för:", userEmail);
-        // Här kan du visa ett meddelande i UI:t istället för en tom skärm
-        const todayContainer = document.getElementById('today-container');
-        if (todayContainer) {
-            todayContainer.innerHTML = '<p class="subtitle">Ditt konto är inte kopplat till någon profil. Kontakta administratören.</p>';
-        }
-        return;
-    }
-
-    // Om vi har en caregiver, fortsätt som vanligt
     setupReactionListeners(caregiver.id);
     await loadPosts(caregiver.id);
 
-    // ... resten av din realtime-kod ...
-}
-
-function setupReactionListeners(caregiverId: string) {
-    const reactionHandler = async (e: Event) => {
-        const target = e.target as HTMLElement;
-        const btn = target.closest('.btn-react') as HTMLButtonElement;
-        
-        if (btn && !btn.disabled) {
-            const postId = btn.dataset.postId;
-            const reactionType = btn.dataset.type;
-            if (postId && reactionType) {
-                const { error } = await supabase
-                    .from('post_reaction')
-                    .insert({ 
-                        logbook_post_id: postId, 
-                        caregiver_id: caregiverId, 
-                        reaction_type: reactionType 
-                    });
-                if (!error) loadPosts(caregiverId);
-            }
-        }
-    };
-
-    document.getElementById('today-container')?.addEventListener('click', reactionHandler);
-    document.getElementById('history-container')?.addEventListener('click', reactionHandler);
+    // Realtime för notiser (Toast)
+    supabase.channel('notice-updates')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notice' }, (payload) => {
+            showToast(payload.new.title || "Ny uppdatering i loggboken!");
+            loadPosts(caregiver.id);
+        })
+        .subscribe();
 }
 
 async function loadPosts(caregiverId: string) {
-    // VIKTIGT: Kontrollera att dessa IDn matchar din index.html exakt!
     const todayContainer = document.getElementById('today-container');
     const historyContainer = document.getElementById('history-container');
 
@@ -109,43 +68,30 @@ async function loadPosts(caregiverId: string) {
         `)
         .eq('caregiver_id', caregiverId);
 
-    if (error) {
-        console.error("Datafel:", error);
-        return;
-    }
+    if (error) return;
+    cachedRelations = relations || [];
+
+    renderFilterBar(cachedRelations);
 
     let allPosts: any[] = [];
-    relations?.forEach((rel: any, index: number) => {
-        const color = childColors[index % childColors.length];
-        const childPosts = rel.child?.logbook_post || [];
-        childPosts.forEach((post: any) => {
-            if (post.is_published) {
-                allPosts.push({
-                    ...post,
-                    childName: rel.child.first_name,
-                    color: color
-                });
-            }
-        });
+    cachedRelations.forEach((rel, index) => {
+        if (currentFilter === 'all' || currentFilter === rel.child.id) {
+            const color = childColors[index % childColors.length];
+            const posts = (rel.child?.logbook_post || [])
+                .filter((p: any) => p.is_published)
+                .map((p: any) => ({ ...p, childName: rel.child.first_name, color }));
+            allPosts = [...allPosts, ...posts];
+        }
     });
 
     allPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
     const startOfToday = new Date().setHours(0,0,0,0);
+    
     const todayPosts = allPosts.filter(p => new Date(p.created_at).getTime() >= startOfToday);
     const olderPosts = allPosts.filter(p => new Date(p.created_at).getTime() < startOfToday);
 
-    if (todayContainer) {
-        todayContainer.innerHTML = todayPosts.length 
-            ? todayPosts.map(p => renderPostCard(p, caregiverId)).join('')
-            : '<p class="subtitle">Inga inlägg från idag.</p>';
-    }
-
-    if (historyContainer) {
-        historyContainer.innerHTML = olderPosts.length
-            ? olderPosts.map(p => renderPostCard(p, caregiverId)).join('')
-            : '<p class="subtitle">Ingen historik hittades.</p>';
-    }
+    if (todayContainer) todayContainer.innerHTML = todayPosts.map(p => renderPostCard(p, caregiverId)).join('') || '<p class="subtitle">Inga inlägg från idag.</p>';
+    if (historyContainer) historyContainer.innerHTML = olderPosts.map(p => renderPostCard(p, caregiverId)).join('') || '<p class="subtitle">Ingen historik hittades.</p>';
 
     setupHistoryToggle();
     await loadIcons();
@@ -155,75 +101,82 @@ function renderPostCard(post: any, caregiverId: string) {
     const mediaHtml = (post.logbook_media || [])
         .map((m: any) => {
             if (!m.file_url || m.file_url.includes('<!doctype html>')) return '';
-            // Vi "escapar" inte URL:en då det kan förstöra sökvägen
             return m.media_type === 'video' 
                 ? `<video src="${m.file_url}" controls class="log-media"></video>`
                 : `<img src="${m.file_url}" alt="${escapeHTML(m.alt_text)}" class="log-media">`;
-        })
-        .join('');
+        }).join('');
 
     const reactionButtons = Object.entries(REACTION_MAP).map(([type, info]) => {
-        const reactions = post.post_reaction || [];
-        const count = reactions.filter((r: any) => r.reaction_type === type).length;
-        const hasReacted = reactions.some((r: any) => r.caregiver_id === caregiverId && r.reaction_type === type);
-
+        const count = (post.post_reaction || []).filter((r: any) => r.reaction_type === type).length;
+        const hasReacted = (post.post_reaction || []).some((r: any) => r.caregiver_id === caregiverId && r.reaction_type === type);
         return `
             <button class="btn-react ${hasReacted ? 'active' : ''}" 
-                    data-post-id="${post.id}" 
-                    data-type="${type}"
-                    ${hasReacted ? 'disabled' : ''}>
+                    data-post-id="${post.id}" data-type="${type}" ${hasReacted ? 'disabled' : ''}>
                 <span class="reaction-emoji">${info.emoji}</span>
                 <span class="reaction-label">${info.label}</span>
                 <span class="reaction-count">${count}</span>
-            </button>
-        `;
+            </button>`;
     }).join('');
 
     return `
-        <div class="card log-card" style="--child-color: ${post.color}; background: white; margin-bottom: 20px; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-            <div class="log-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <span class="child-badge" style="background: ${post.color}; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 0.8rem;">
-                    ${escapeHTML(post.childName)}
-                </span>
-                <span class="subtitle" style="color: #666; font-size: 0.85rem;">
-                    ${new Date(post.created_at).toLocaleDateString('sv-SE')}
-                </span>
+        <div class="card log-card" style="--child-color: ${post.color};">
+            <div class="log-header">
+                <span class="child-badge" style="background: ${post.color}">${escapeHTML(post.childName)}</span>
+                <span class="subtitle">${new Date(post.created_at).toLocaleDateString('sv-SE')}</span>
             </div>
-            <h2 class="card-title" style="color: var(--primary-green, #2d5a27); margin-bottom: 8px; font-size: 1.2rem;">
-                ${escapeHTML(post.title || 'Inlägg')}
-            </h2>
-            <p class="log-content" style="margin-bottom: 15px; line-height: 1.5; white-space: pre-wrap;">
-                ${escapeHTML(post.content || '')}
-            </p>
-            <div class="media-container" style="display: flex; flex-direction: column; gap: 10px;">
-                ${mediaHtml}
-            </div>
-            <div class="reaction-area" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
-                ${reactionButtons}
-            </div>
-        </div>
-    `;
+            <h2 class="card-title">${escapeHTML(post.title || 'Inlägg')}</h2>
+            <p class="log-content">${escapeHTML(post.content || '')}</p>
+            <div class="media-container">${mediaHtml}</div>
+            <div class="reaction-area">${reactionButtons}</div>
+        </div>`;
 }
 
-// ... Resten av funktionerna (setupHistoryToggle, showToast) förblir desamma ...
+function renderFilterBar(relations: any[]) {
+    const container = document.getElementById('child-filter-container');
+    if (!container) return;
+    let html = `<button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" onclick="window.setFilter('all')">Alla barn</button>`;
+    relations.forEach((rel, index) => {
+        const isActive = currentFilter === rel.child.id;
+        const color = childColors[index % childColors.length];
+        html += `<button class="filter-btn ${isActive ? 'active' : ''}" 
+                 style="${isActive ? `background: ${color}; border-color: ${color};` : ''}"
+                 onclick="window.setFilter('${rel.child.id}')">${rel.child.first_name}</button>`;
+    });
+    container.innerHTML = html;
+}
+
+(window as any).setFilter = (childId: string) => {
+    currentFilter = childId;
+    loadPosts(globalCaregiverId);
+};
+
+function setupReactionListeners(caregiverId: string) {
+    const handler = async (e: Event) => {
+        const btn = (e.target as HTMLElement).closest('.btn-react') as HTMLButtonElement;
+        if (btn && !btn.disabled) {
+            const { postId, type } = btn.dataset;
+            const { error } = await supabase.from('post_reaction').insert({ logbook_post_id: postId, caregiver_id: caregiverId, reaction_type: type });
+            if (!error) loadPosts(caregiverId);
+        }
+    };
+    document.getElementById('today-container')?.addEventListener('click', handler);
+    document.getElementById('history-container')?.addEventListener('click', handler);
+}
+
 function setupHistoryToggle() {
-    const historyBtn = document.getElementById('btn-show-history');
-    const historyContainer = document.getElementById('history-container');
-    if (historyBtn && historyContainer) {
-        historyBtn.onclick = () => {
-            const isShowing = historyContainer.classList.toggle('show');
-            historyBtn.innerText = isShowing ? 'Dölj tidigare dagar' : 'Se tidigare dagar';
+    const btn = document.getElementById('btn-show-history');
+    const container = document.getElementById('history-container');
+    if (btn && container) {
+        btn.onclick = () => {
+            const isShowing = container.classList.toggle('show');
+            btn.innerText = isShowing ? 'Dölj tidigare dagar' : 'Se tidigare dagar';
         };
     }
 }
 
-function showToast(message: string) {
+function showToast(msg: string) {
     const toast = document.getElementById('notification-toast');
-    if (toast) {
-        toast.innerText = message;
-        toast.classList.remove('hidden');
-        setTimeout(() => toast.classList.add('hidden'), 4000);
-    }
+    if (toast) { toast.innerText = msg; toast.classList.remove('hidden'); setTimeout(() => toast.classList.add('hidden'), 4000); }
 }
 
 initLogbook();
