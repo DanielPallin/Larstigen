@@ -80,6 +80,7 @@ function setupWeekNavigation(): void {
   });
 }
 
+// MONTHLY CALENDAR FUNCTIONS
 function setupMonthNavigation(): void {
   const btnPrev = document.getElementById("btn-prev-month");
   const btnNext = document.getElementById("btn-next-month");
@@ -139,43 +140,6 @@ async function fetchInfoEvents(year: number, month: number): Promise<InfoEvent[]
   return data as InfoEvent[];
 }
 
-function generateMonthView(year: number, month: number): void {
-  const grid = document.getElementById("month-grid");
-  if (!grid) return;
-
-  // --- THE FLUSH ---
-  // Select all existing days and remove them, but leave the M, T, O headers intact!
-  const existingDays = grid.querySelectorAll(".month-day");
-  existingDays.forEach((day) => day.remove());
-
-  // Step 1: The Math
-  const daysInMonth = new Date(year, month + 1, 0).getDate(); 
-  const firstDay = new Date(year, month, 1).getDay(); 
-  const emptyBlocksToStart = firstDay === 0 ? 6 : firstDay - 1;
-
-  // Step 2: The Painting
-  for (let i = 0; i < emptyBlocksToStart; i++) {
-    const emptyDiv = document.createElement("div");
-    emptyDiv.className = "month-day empty";
-    grid.appendChild(emptyDiv);
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dayDiv = document.createElement("div");
-    dayDiv.className = "month-day";
-    dayDiv.textContent = day.toString();
-
-    // Remove the hardcoded mockup data for now since it only applied to April 2026,
-    // or keep the weekend logic as it applies universally!
-    const currentWeekday = (emptyBlocksToStart + day - 1) % 7;
-    if (currentWeekday === 5 || currentWeekday === 6) { 
-      dayDiv.classList.add("weekend");
-    }
-
-    grid.appendChild(dayDiv);
-  }
-}
-
 async function fetchHolidays(year: number, month: number): Promise<string[]> {
   try {
     const paddedMonth = String(month + 1).padStart(2, '0');
@@ -195,6 +159,76 @@ async function fetchHolidays(year: number, month: number): Promise<string[]> {
   }
 }
 
+async function generateMonthView(year: number, month: number): Promise<void> {
+  const grid = document.getElementById("month-grid");
+  if (!grid) return;
+
+  // Visual feedback while fetching
+  grid.style.opacity = "0.5"; 
+
+  // --- THE FETCH ---
+  // Promise.all runs both fetches at the exact same time for maximum speed
+  const [holidays, infoEvents] = await Promise.all([
+    fetchHolidays(year, month),
+    fetchInfoEvents(year, month)
+  ]);
+
+  // --- THE FLUSH ---
+  const existingDays = grid.querySelectorAll(".month-day");
+  existingDays.forEach((day) => day.remove());
+
+  // Step 1: The Math
+  const daysInMonth = new Date(year, month + 1, 0).getDate(); 
+  const firstDay = new Date(year, month, 1).getDay(); 
+  const emptyBlocksToStart = firstDay === 0 ? 6 : firstDay - 1;
+
+  // Step 2: The Painting
+  for (let i = 0; i < emptyBlocksToStart; i++) {
+    const emptyDiv = document.createElement("div");
+    emptyDiv.className = "month-day empty";
+    grid.appendChild(emptyDiv);
+  }
+
+  const paddedMonth = String(month + 1).padStart(2, '0');
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dayDiv = document.createElement("div");
+    dayDiv.className = "month-day";
+    dayDiv.textContent = day.toString();
+
+    // Format this specific day to match our DB/API format (YYYY-MM-DD)
+    const paddedDay = String(day).padStart(2, '0');
+    const currentDateString = `${year}-${paddedMonth}-${paddedDay}`;
+
+    const currentWeekday = (emptyBlocksToStart + day - 1) % 7;
+    
+    // 1. Check for Weekend OR Public Holiday (Röd dag)
+    if (currentWeekday === 5 || currentWeekday === 6 || holidays.includes(currentDateString)) { 
+      dayDiv.classList.add("weekend"); // weekend class makes it red/faded depending on your CSS
+    }
+
+    // 2. Check for Pre-school Events
+    const daysEvents = infoEvents.filter(e => e.event_date === currentDateString);
+    if (daysEvents.length > 0) {
+      dayDiv.classList.add("has-event");
+      
+      // Add a subtle dot indicator for the event
+      const dot = document.createElement("span");
+      dot.className = "event-dot";
+      dayDiv.appendChild(dot);
+
+      // Optional: Add a title attribute so parents can hover and see what it is
+      dayDiv.title = daysEvents.map(e => e.title).join(", ");
+    }
+
+    grid.appendChild(dayDiv);
+  }
+
+  // Restore opacity
+  grid.style.opacity = "1";
+}
+
+// TEMPLATE FUNCTIONS
 async function applyTemplate(templateId: string, childId: string): Promise<void> {
   try {
     // 1. Bulk Deactivation: Turn off all templates for this child
