@@ -176,25 +176,22 @@ function generateMonthView(year: number, month: number): void {
   }
 }
 
-async function fetchHolidays(year: number, month: number): Promise<void> {
+async function fetchHolidays(year: number, month: number): Promise<string[]> {
   try {
-    // The API requires the month to be formatted with a leading zero (e.g., "04" for April)
-    const formattedMonth = month < 10 ? `0${month}` : `${month}`;
-    const url = `https://api.dryg.net/dagar/v2.1/${year}/${formattedMonth}`;
+    const paddedMonth = String(month + 1).padStart(2, '0');
+    const url = `https://api.dryg.net/dagar/v2.1/${year}/${paddedMonth}`;
     
     const response = await fetch(url);
     const data = await response.json();
     
-    // Filter out only the red days!
-    const redDays = data.dagar.filter((dag: SvenskDag) => dag["röd dag"] === "Ja" && dag.helgdag);
-    
-    console.log(`Hittade ${redDays.length} röda dagar i ${year}-${formattedMonth}:`);
-    redDays.forEach((dag: SvenskDag) => {
-      console.log(`- ${dag.datum}: ${dag.helgdag}`);
-    });
+    // Return an array of just the date strings (e.g., ["2026-04-03", "2026-04-06"])
+    return data.dagar
+      .filter((dag: SvenskDag) => dag["röd dag"] === "Ja" && dag.helgdag)
+      .map((dag: SvenskDag) => dag.datum);
 
   } catch (error) {
     console.error("Kunde inte hämta helgdagar:", error);
+    return [];
   }
 }
 
