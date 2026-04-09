@@ -242,6 +242,54 @@ async function generateMonthView(year: number, month: number): Promise<void> {
       dayDiv.title = tooltipTexts.join(" | "); 
     }
 
+    // 4. NEW. Attach Click Listener for Details
+    dayDiv.addEventListener("click", () => {
+      const detailsContainer = document.getElementById("day-details-container");
+      if (!detailsContainer) return;
+
+      // Highlight the selected day visually (UX touch)
+      document.querySelectorAll(".month-day").forEach(d => d.classList.remove("selected-day"));
+      dayDiv.classList.add("selected-day");
+
+      // Clear previous details
+      detailsContainer.innerHTML = "";
+
+      // If clicking an empty day, maybe show a subtle message or just empty it
+      if (daysEvents.length === 0 && !holiday) {
+        detailsContainer.innerHTML = `<p class="subtitle" style="text-align: center; padding-top: 15px;">Inga inplanerade händelser.</p>`;
+        return;
+      }
+
+      let detailsHTML = "";
+
+      // Render Public Holiday (Inspired by the pinkish alert in the screenshot)
+      if (holiday) {
+        detailsHTML += `
+          <div class="alert-card holiday-alert">
+            <span class="alert-icon">❗</span>
+            <div class="alert-content">
+              <strong>Röd dag:</strong><br>
+              ${holiday.helgdag}
+            </div>
+          </div>
+        `;
+      }
+
+      // Render Pre-school Events (Inspired by the light blue info boxes)
+      daysEvents.forEach(event => {
+        detailsHTML += `
+          <div class="alert-card info-alert">
+            <div class="alert-content">
+              <strong style="display: block; margin-bottom: 5px; color: var(--text-dark);">❗ ${event.title}</strong>
+              <span style="color: var(--text-muted); font-size: 0.95rem;">${event.content}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      detailsContainer.innerHTML = detailsHTML;
+    });
+
     grid.appendChild(dayDiv);
   }
 
