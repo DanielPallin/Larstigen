@@ -12,7 +12,7 @@ const mockData = {
     name: "Maja",
     avatar: "/assets/child4.jpg",
     color: "yellow"
-  ,}
+  }
 ],
 
   importantUpdates: [
@@ -80,10 +80,6 @@ function createChildCard(sibling, checked, onToggle) {
     onToggle(sibling.id);
   });
 
-  label.addEventListener("click", (event) => {
-    if (event.target.tagName.toLowerCase() === "input") return;
-    onToggle(sibling.id);
-  });
 
   const avatar = document.createElement("img");
   avatar.className = "avatar";
@@ -150,7 +146,12 @@ function renderUpdates() {
     if (!child) return;
 
     const li = document.createElement("li");
-    li.className = `notice-item notice-${child.color}`;
+    li.className = `notice-item notice-${child.color} clickable`;
+
+    li.addEventListener("click", () => {
+    // skickar med info i URL 
+    window.location.href = `information.html?childId=${child.id}&noticeId=${update.id}`;
+    });
 
     const tag = document.createElement("span");
     tag.className = `child-tag child-tag-${child.color}`;
@@ -215,14 +216,18 @@ pickupForm.addEventListener("submit", (event) => {
   event.preventDefault();
 
   const pickupName = pickupNameInput.value.trim();
-  if (!pickupName || selectedChildren.length === 0) return;        
+  if (!pickupName || selectedChildren.length === 0) return;
 
   const newEntries = selectedChildren.map((childId) => ({
     childId,
     name: pickupName,
   }));
 
-  savedPickup = [...newEntries];
+  const otherPickups = savedPickup.filter(
+    (p) => !selectedChildren.includes(p.childId)
+  );
+
+  savedPickup = [...otherPickups, ...newEntries];
   pickupNameInput.value = "";
 
   renderPickupResults();
