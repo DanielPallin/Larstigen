@@ -205,15 +205,22 @@ async function generateMonthView(year: number, month: number): Promise<void> {
     dayDiv.className = "month-day";
     dayDiv.textContent = day.toString();
 
-    // Format this specific day to match our DB/API format (YYYY-MM-DD)
     const paddedDay = String(day).padStart(2, '0');
     const currentDateString = `${year}-${paddedMonth}-${paddedDay}`;
-
     const currentWeekday = (emptyBlocksToStart + day - 1) % 7;
     
-    // 1. Check for Weekend OR Public Holiday (Röd dag)
-    if (currentWeekday === 5 || currentWeekday === 6 || holidays.includes(currentDateString)) { 
-      dayDiv.classList.add("weekend"); // weekend class makes it red/faded depending on your CSS
+    // Create an array to hold all hover texts for this specific day
+    let tooltipTexts: string[] = [];
+
+    // 1. Check for Public Holiday (Röd dag)
+    const holiday = holidays.find(h => h.datum === currentDateString);
+    if (holiday) {
+      tooltipTexts.push(holiday.helgdag); // Add the holiday name to the tooltip
+    }
+
+    // Apply red/transparent styling for weekends and holidays
+    if (currentWeekday === 5 || currentWeekday === 6 || holiday) { 
+      dayDiv.classList.add("weekend"); 
     }
 
     // 2. Check for Pre-school Events
@@ -221,13 +228,18 @@ async function generateMonthView(year: number, month: number): Promise<void> {
     if (daysEvents.length > 0) {
       dayDiv.classList.add("has-event");
       
-      // Add a subtle dot indicator for the event
       const dot = document.createElement("span");
       dot.className = "event-dot";
       dayDiv.appendChild(dot);
 
-      // Optional: Add a title attribute so parents can hover and see what it is
-      dayDiv.title = daysEvents.map(e => e.title).join(", ");
+      // Add all pre-school event titles to the tooltip
+      tooltipTexts.push(...daysEvents.map(e => e.title));
+    }
+
+    // 3. Apply the Tooltip if there is anything to show!
+    if (tooltipTexts.length > 0) {
+      // Joins multiple events with a clean separator if they land on the same day
+      dayDiv.title = tooltipTexts.join(" | "); 
     }
 
     grid.appendChild(dayDiv);
