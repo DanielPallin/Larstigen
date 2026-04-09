@@ -56,6 +56,7 @@ const monthNames = [
   "Juli", "Augusti", "September", "Oktober", "November", "December"
 ];
 
+// VIEW AND NAVIGATION FUNCTIONS
 function setupViewToggles(): void {
   const viewButtons = document.querySelectorAll<HTMLButtonElement>(".view-btn");
   const viewSections = document.querySelectorAll<HTMLElement>(".view-section");
@@ -73,6 +74,12 @@ function setupViewToggles(): void {
           section.style.display = "none";
         }
       });
+
+      // When the user clicks the "Schema" button, fetch the data!
+      if (targetId === "view-schema") {
+        // We use your mock child ID here for testing
+        fetchAndRenderWeeklySchedule("03974556-db9a-448b-a3a0-a8d4aa1fc498"); 
+      }
     });
   });
 }
@@ -95,6 +102,98 @@ function setupWeekNavigation(): void {
     currentWeek = currentWeek >= 52 ? 1 : currentWeek + 1;
     titleDisplay.textContent = `Vecka ${currentWeek}`;
   });
+}
+
+// WEEKLY VIEW FUNCTIONS
+async function fetchAndRenderWeeklySchedule(childId: string): Promise<void> {
+  const container = document.getElementById("view-schema");
+  if (!container) return;
+
+  // For testing, we are hardcoding the dates to match your Supabase mock data.
+  // In a production app, these would be calculated dynamically based on `currentWeek`.
+  const weekStart = '2026-04-13'; 
+  const weekEnd = '2026-04-19';
+
+  container.innerHTML = `<div class="card full-width"><p class="subtitle" style="text-align: center;">Hämtar veckans schema...</p></div>`;
+
+  try {
+    const { data, error } = await supabase
+      .from('schedule_entry')
+      .select('*')
+      .eq('child_id', childId)
+      .gte('date', weekStart)
+      .lte('date', weekEnd)
+      .order('date', { ascending: true });
+
+    if (error) throw error;
+
+    // Cast the data using our new strict interface
+    const entries = data as ScheduleEntry[];
+
+    if (!entries || entries.length === 0) {
+      container.innerHTML = `
+        <div class="card full-width">
+          <h3 class="card-title" style="text-align: center;">Vecka ${currentWeek}</h3>
+          <p class="subtitle" style="text-align: center;">Inget schema inlagt för denna vecka.</p>
+        </div>`;
+      return;
+    }
+
+    // Build the Card UI
+    let html = `
+      <div class="card full-width">
+        <div class="week-header">
+          <h3 class="card-title week-title">Vecka ${currentWeek}</h3>
+        </div>
+    `;
+
+    // Loop through the days and paint them
+    entries.forEach(entry => {
+      // Determine the visual status indicator based on the ENUM
+      let statusIcon = '⏳';
+      let statusText = 'Väntar';
+      let statusColor = 'var(--text-muted)'; // Default grey
+      
+      if (entry.approval_status === 'approved') {
+        statusIcon = '✅';
+        statusText = 'Bekräftad';
+        statusColor = 'var(--primary-green)';
+      } else if (entry.approval_status === 'rejected') {
+        statusIcon = '❌';
+        statusText = 'Nekad';
+        statusColor = '#e74c3c'; // Error red
+      }
+
+      // Clean up the time formatting (removing the :00 seconds from the DB)
+      const dropOff = entry.drop_off_time ? entry.drop_off_time.substring(0, 5) : '-';
+      const pickUp = entry.pick_up_time ? entry.pick_up_time.substring(0, 5) : '-';
+
+      // Use the native JS Date object to get the Swedish short weekday name (e.g., "MÅN")
+      const dayName = new Date(entry.date).toLocaleDateString('sv-SE', { weekday: 'short' }).toUpperCase();
+
+      html += `
+        <div class="day-row" style="justify-content: space-between;">
+          <div style="display: flex; gap: 15px; align-items: center;">
+            <div class="day-name">${dayName}</div>
+            <div class="time-display" style="font-weight: bold;">
+              ${dropOff} - ${pickUp}
+            </div>
+          </div>
+          <div class="status-indicator" style="color: ${statusColor}; font-size: 0.9rem;" title="Status: ${entry.approval_status}">
+            ${statusIcon} ${statusText}
+          </div>
+        </div>
+        ${entry.comment ? `<div style="font-size: 0.85rem; color: var(--text-muted); margin-left: 55px; margin-bottom: 10px;">💬 ${entry.comment}</div>` : ''}
+      `;
+    });
+
+    html += `</div>`;
+    container.innerHTML = html;
+
+  } catch (error) {
+    console.error("Kunde inte hämta veckoschemat:", error);
+    container.innerHTML = `<div class="card full-width"><p class="subtitle" style="color: red; text-align: center;">Kunde inte ladda schemat.</p></div>`;
+  }
 }
 
 // MONTHLY CALENDAR FUNCTIONS
