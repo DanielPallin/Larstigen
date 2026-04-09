@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    include: ['tests/unit/**/*.test.js'],
+    // Detta letar i ALLA mappar under tests efter filer som slutar på .test.js eller .test.ts
+    include: ['tests/*/.{test,spec}.{js,ts}'],
   },
 });
