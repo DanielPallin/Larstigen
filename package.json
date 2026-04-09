@@ -9,12 +9,11 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint .",
-    "test": "vitest",
-    "test:watch": "vitest --watch",
-    "test:e2e": "playwright test"
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test": "vitest run --coverage && playwright test"
   },
   "repository": {
     "type": "git",
@@ -30,8 +29,10 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.59.1",
+    "@vitest/coverage-v8": "^4.1.3",
     "eslint": "^10.1.0",
     "globals": "^17.4.0",
+    "jsdom": "^29.0.2",
     "vite-plugin-static-copy": "^4.0.1",
     "vitest": "^4.1.2"
   },
