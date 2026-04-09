@@ -146,7 +146,7 @@ async function fetchInfoEvents(year: number, month: number): Promise<InfoEvent[]
   return data as InfoEvent[];
 }
 
-async function fetchHolidays(year: number, month: number): Promise<string[]> {
+async function fetchHolidays(year: number, month: number): Promise<PublicHoliday[]> {
   try {
     const paddedMonth = String(month + 1).padStart(2, '0');
     const url = `https://api.dryg.net/dagar/v2.1/${year}/${paddedMonth}`;
@@ -154,10 +154,13 @@ async function fetchHolidays(year: number, month: number): Promise<string[]> {
     const response = await fetch(url);
     const data = await response.json();
     
-    // Return an array of just the date strings (e.g., ["2026-04-03", "2026-04-06"])
+    // Return an array of objects containing both the date and the name
     return data.dagar
       .filter((dag: SvenskDag) => dag["röd dag"] === "Ja" && dag.helgdag)
-      .map((dag: SvenskDag) => dag.datum);
+      .map((dag: SvenskDag) => ({
+        datum: dag.datum,
+        helgdag: dag.helgdag
+      }));
 
   } catch (error) {
     console.error("Kunde inte hämta helgdagar:", error);
