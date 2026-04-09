@@ -15,49 +15,18 @@ body {
     padding-bottom: 80px;
 }
 
-/* h1, h2, h3, .section-title {
-    font-family: 'DIN Condensed', sans-serif; /* Enligt profil
-    text-transform: uppercase;
-} */
-
-/* Header & Logo morphing */
-header {
-    background: var(--white);
-    padding: 1rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+.profile-text {
+    margin-bottom: 12px;
+    color: var(--primary-green);
     display: flex;
-    justify-content: center;
-    transition: all 0.3s ease;
-    border-bottom: 2px solid var(--bg-gray);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    flex-direction: row;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--accent-blue);
 }
 
-header.scrolled {
-    padding: 5px;
-}
+.info-title {
+color: var(--primary-green);
 
-.logo-container img {
-    height: 80px;
-    transition: all 0.3s ease;
-}
-
-header.scrolled .logo-container img {
-    height: 40px;
-}
-
-/* Alert */
-.alert {
-    background: #fff3f3; /* Ljus röd för uppmärksamhet */
-    border: 1px solid #ffcccc;
-    padding: 10px;
-    border-radius: 10px;
-    margin: 5px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    font-weight: bold;
 }
 
 /* Accordion styling */
@@ -72,10 +41,31 @@ summary {
     padding: 15px;
     list-style: none;
     display: flex;
-    justify-content: space-between;
+    /* Detta skickar ut innehållet till kanterna */
+    justify-content: space-between; 
+    align-items: center;
     cursor: pointer;
     font-weight: bold;
     border-bottom: 1px solid var(--accent-blue);
+}
+
+/* Grupperingen för bild och text */
+.summary-content {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Mellanrum mellan bild och text */
+}
+
+.alert-circle, .home {
+    width: 20px;
+    height: 20px;
+    /* Trick för att göra en svart SVG röd via filter */
+    filter: invert(15%) sepia(95%) saturate(6932%) hue-rotate(358deg) brightness(95%) contrast(112%);
+}
+
+.plus {
+    font-size: 1.2rem;
+    color: var(--primary-green);
 }
 
 .menu-week {
@@ -85,29 +75,4 @@ summary {
 .content {
     padding: 15px;
     background: var(--white);
-}
-
-/* Bottom Nav */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: var(--white);
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    border-top: 1px solid var(--bg-gray);
-    transition: transform 0.3s;
-}
-
-.bottom-nav.hidden { transform: translateY(100%); }
-
-.bottom-nav img {
-    width: 30px;
-    opacity: 0.6;
-}
-
-.bottom-nav a.active img {
-    opacity: 1;
-    filter: sepia(100%) saturate(300%) hue-rotate(40deg); /* Ger ikonerna en grön ton */
 }
