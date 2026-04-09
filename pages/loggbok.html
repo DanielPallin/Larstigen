@@ -4,9 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lärstigen - Loggbok</title>
-    <script type="module" src="/ts/loggbok.ts"></script>
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/loggbok.css" />
+    <script type="module" src="../ts/loggbok.ts"></script>
   </head>
-
   <body>
     <header class="site-header">
       <div class="header-inner">
@@ -15,37 +17,45 @@
     </header>
 
     <main class="container">
+      <div id="child-filter-container" class="filter-bar"></div>
 
-      <p>Julias sida</p>
+      <section id="today-section">
+        <h3 class="section-title">Idag</h3>
+        <div id="today-container">
+           <p class="subtitle">Laddar inlägg...</p>
+        </div>
+      </section>
 
+      <section id="history-section">
+        <button id="btn-show-history" class="btn-history">Se tidigare dagar</button>
+        <div id="history-container" class="history-hidden">
+          </div>
+      </section>
     </main>
+
+    <div id="notification-toast" class="toast hidden"></div>
 
     <nav class="bottom-nav">
       <a href="dashboard.html" class="nav-item">
-        <span class="nav-icon" data-icon="home" aria-hidden="true"></span>
+        <span class="nav-icon" data-icon="home"></span>
         <span class="sr-only">Dashboard</span>
       </a>
-
       <a href="kalender.html" class="nav-item">
-        <span class="nav-icon" data-icon="calendar" aria-hidden="true"></span>
+        <span class="nav-icon" data-icon="calendar"></span>
         <span class="sr-only">Kalender</span>
       </a>
-
       <a href="information.html" class="nav-item">
-        <span class="nav-icon" data-icon="alert-circle" aria-hidden="true"></span>
+        <span class="nav-icon" data-icon="alert-circle"></span>
         <span class="sr-only">Information</span>
       </a>
-
       <a href="loggbok.html" class="nav-item">
-        <span class="nav-icon" data-icon="book-open" aria-hidden="true"></span>
+        <span class="nav-icon" data-icon="book-open"></span>
         <span class="sr-only">Loggbok</span>
       </a>
-
       <a href="profil.html" class="nav-item">
-        <span class="nav-icon" data-icon="smile" aria-hidden="true"></span>
+        <span class="nav-icon" data-icon="smile"></span>
         <span class="sr-only">Profil</span>
       </a>
     </nav>
-
   </body>
 </html>
