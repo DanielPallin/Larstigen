@@ -269,7 +269,7 @@ export async function renderMenuSection(allMenus: MenuPost[], childDeptId: strin
 
     menuContainer.innerHTML = `
        <h3 class="card-title">🍴 MATSEDEL</h3>
-        <details class="accordion-item-menu" ${isCurrentlyOpen ? 'open' : ''}>
+        <details class="accordion-item-menu menu-main-item" ${isCurrentlyOpen ? 'open' : ''}>
             <summary>
                 <div class="summary-content">
                     <span><strong>Dagens lunch:</strong> ${todayTitle}</span>
