@@ -21,6 +21,12 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    border-bottom: 2px solid var(--accent-blue);
+}
+
+.info-title {
+color: var(--primary-green);
+
 }
 
 /* Accordion styling */
@@ -35,10 +41,31 @@ summary {
     padding: 15px;
     list-style: none;
     display: flex;
-    justify-content: space-between;
+    /* Detta skickar ut innehållet till kanterna */
+    justify-content: space-between; 
+    align-items: center;
     cursor: pointer;
     font-weight: bold;
     border-bottom: 1px solid var(--accent-blue);
+}
+
+/* Grupperingen för bild och text */
+.summary-content {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Mellanrum mellan bild och text */
+}
+
+.alert-circle, .home {
+    width: 20px;
+    height: 20px;
+    /* Trick för att göra en svart SVG röd via filter */
+    filter: invert(15%) sepia(95%) saturate(6932%) hue-rotate(358deg) brightness(95%) contrast(112%);
+}
+
+.plus {
+    font-size: 1.2rem;
+    color: var(--primary-green);
 }
 
 .menu-week {

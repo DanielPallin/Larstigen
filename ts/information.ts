@@ -121,17 +121,22 @@ async function renderInformation(child: Child, notes: InfoPost[]) {
     const container = document.querySelector('.container');
     if (!container) return;
 
+  
     const avatarUrl = await getAvatarUrl(child.profile_image_url);
 
     // 1. Profilkort (Elfie)
     const welcomeHtml = `
         <div class="card">
-            <img class="active-pic" src="${avatarUrl}" alt="${child.first_name}">
-            <div class="profile-text">
-                <h3><strong>${child.first_name}</strong></h3>
-                <p>Avdelning: ${child.department?.name || 'Ej angiven'}</p>
-            </div>
-                    <h1 class="card-title">⚠️ Viktig information</h1>
+        <h1 class="info-title">⚠️ Viktig information</h1>
+          <img class="active-pic" 
+            src="${avatarUrl}" 
+            alt="${child.first_name}" 
+            crossorigin="anonymous">
+          <div class="profile-text">
+              <h3><strong>${child.first_name}</strong></h3>
+               <p>Avdelning: ${child.department?.name || 'Ej angiven'}</p>
+          </div>
+                    
         </div>
     `;
 
@@ -141,19 +146,22 @@ async function renderInformation(child: Child, notes: InfoPost[]) {
 
     // Hjälpfunktion för att skapa HTML för en notis
     // Lägger till en parameter 'type' för att kunna sätta olika CSS-klasser
-    const createNoteHtml = (note: InfoPost, type: 'global' | 'dept') => `
-        <details class="accordion-item note-${type}">
-            <summary>
-                ${type === 'global' ? '❗' : '🏠'} ${note.title} 
-                <span>+</span>
-            </summary>
-            <div class="content">
-                <p>${note.content}</p>
+const createNoteHtml = (note: InfoPost, type: 'global' | 'dept') => `
+    <details class="accordion-item note-${type}">
+        <summary>
+            <div class="summary-content">
+                ${type === 'global' ? '<img class="alert-circle" src="/assets/icons/alert-circle.svg">' : '<img class="home" src="/assets/icons/home.svg">'} 
+                <span>${note.title}</span>
             </div>
-        </details>
+            <span class="plus">+</span>
+        </summary>
+        <div class="content">
+            <p>${note.content}</p>
+        </div>
+    </details>
     `;
 
-    // 4. Bygg ihop de två sektionerna
+    // Bygg ihop de två sektionerna
     let sectionsHtml = '';
 
     // Sektion för hela förskolan (Globala)
@@ -176,7 +184,7 @@ async function renderInformation(child: Child, notes: InfoPost[]) {
         `;
     }
 
-    // 5. Skriv ut allt
+    // Skriver ut allt
     container.innerHTML = welcomeHtml + sectionsHtml;
 
     // await loadIcons(); // Ladda ikonerna efter att HTML har skapats
