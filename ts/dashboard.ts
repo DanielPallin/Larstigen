@@ -137,11 +137,6 @@ function getChildById(id: string): Sibling | undefined {
   return state.siblings.find((child) => child.id === id);
 }
 
-function toggleArrayValue(arr: string[], id: string): string[] {
-  return arr.includes(id)
-    ? arr.filter((item) => item !== id)
-    : [...arr, id];
-}
 
 function formatDate(dateString: string): string {
   if (!dateString) return "";
@@ -669,6 +664,11 @@ async function initDashboard(): Promise<void> {
       importantUpdatesList.innerHTML = `<li>${message}</li>`;
     }
   }
+}
+export function toggleArrayValue(arr: string[], id: string): string[] {
+  return arr.includes(id)
+    ? arr.filter((item) => item !== id)
+    : [...arr, id];
 }
 
 initDashboard();
