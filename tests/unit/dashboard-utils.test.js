@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest";
-import { toggleArrayValue } from "../../ts/dashboard-utils";
+import { toggleArrayValue } from "../ts/dashboard-utils";
 
 describe("toggleArrayValue", () => {
   test("lägger till id om det inte finns", () => {
