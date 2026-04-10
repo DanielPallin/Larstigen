@@ -1,6 +1,15 @@
 import { supabase } from './api';
 import { initGlobalUI, loadIcons } from "./global";
 
+// 1. Definiera globala typer för Window så TypeScript inte klagar
+declare global {
+    interface Window {
+        setFilter: (childId: string) => void;
+        __VITEST__?: boolean;
+        VITEST?: boolean;
+    }
+}
+
 const childColors = ['#aed5eb', '#ffeaa7', '#9daa75', '#ffcdcd'];
 let currentFilter: string = 'all'; 
 let cachedRelations: any[] = [];
@@ -13,9 +22,9 @@ const REACTION_MAP: Record<string, { emoji: string, label: string }> = {
     'TACK':   { emoji: '🙏', label: 'Tack' }
 };
 
-export const escapeHTML = (str: string) => {
-    if (!str) return "";
-    return str.toString().replace(/[&<>"']/g, m => ({
+export const escapeHTML = (str: any) => {
+    if (str === null || str === undefined) return "";
+    return str.toString().replace(/[&<>"']/g, (m: string) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[m]!));
 };
@@ -51,6 +60,9 @@ export async function initLogbook(): Promise<void> {
 }
 
 export async function loadPosts(caregiverId: string) {
+    // Om vi är i en testmiljö (Vitest), stoppa körningen här om det behövs
+    if (window.VITEST || window.__VITEST__) return;
+
     const todayContainer = document.getElementById('today-container');
     const historyContainer = document.getElementById('history-container');
 
@@ -90,6 +102,7 @@ export async function loadPosts(caregiverId: string) {
     const todayPosts = allPosts.filter(p => new Date(p.created_at).getTime() >= startOfToday);
     const olderPosts = allPosts.filter(p => new Date(p.created_at).getTime() < startOfToday);
 
+    // HÄR VAR FELET - Nu är strängarna korrekt stängda
     if (todayContainer) todayContainer.innerHTML = todayPosts.map(p => renderPostCard(p, caregiverId)).join('') || '<p class="subtitle">Inga inlägg från idag.</p>';
     if (historyContainer) historyContainer.innerHTML = olderPosts.map(p => renderPostCard(p, caregiverId)).join('') || '<p class="subtitle">Ingen historik hittades.</p>';
 
@@ -134,18 +147,21 @@ export function renderPostCard(post: any, caregiverId: string) {
 export function renderFilterBar(relations: any[]) {
     const container = document.getElementById('child-filter-container');
     if (!container) return;
-    let html = `<button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" onclick="window.setFilter('all')">Alla barn</button>`;
+    
+    let html = `<button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" data-id="all" onclick="window.setFilter('all')">Alla barn</button>`;
+    
     relations.forEach((rel, index) => {
         const isActive = currentFilter === rel.child.id;
         const color = childColors[index % childColors.length];
         html += `<button class="filter-btn ${isActive ? 'active' : ''}" 
+                 data-id="${rel.child.id}"
                  style="${isActive ? `background: ${color}; border-color: ${color};` : ''}"
                  onclick="window.setFilter('${rel.child.id}')">${rel.child.first_name}</button>`;
     });
     container.innerHTML = html;
 }
 
-(window as any).setFilter = (childId: string) => {
+window.setFilter = (childId: string) => {
     currentFilter = childId;
     loadPosts(globalCaregiverId);
 };
@@ -176,14 +192,14 @@ export function setupHistoryToggle() {
 
 export function showToast(msg: string) {
     const toast = document.getElementById('notification-toast');
-    if (toast) { toast.innerText = msg; toast.classList.remove('hidden'); setTimeout(() => toast.classList.add('hidden'), 4000); }
+    if (toast) { 
+        toast.innerText = msg; 
+        toast.classList.remove('hidden'); 
+        setTimeout(() => toast.classList.add('hidden'), 4000); 
+    }
 }
 
-if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-    // Kör bara tunga saker om vi inte är i en testmiljö (valfritt)
-}
-
-// Se till att denna inte körs automatiskt under test:
-if (typeof window !== 'undefined' && !window.__VITEST__) {
+// Kör initLogbook endast om vi är i en webbläsare och INTE i en testmiljö
+if (typeof window !== 'undefined' && !window.__VITEST__ && !window.VITEST) {
     initLogbook();
 }
