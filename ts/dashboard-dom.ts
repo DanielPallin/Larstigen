@@ -28,8 +28,8 @@ export function renderSelectedChildrenText({
   }
 
   const names = siblings
-    .filter((child: Child) => selectedChildren.includes(child.id))
-    .map((child: Child) => child.name)
+    .filter((child) => selectedChildren.includes(child.id))
+    .map((child) => child.name)
     .join(", ");
 
   selectedChildrenText.textContent = `Valda barn: ${names}`;
