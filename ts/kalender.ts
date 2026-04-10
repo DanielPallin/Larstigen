@@ -1,5 +1,6 @@
 import { initGlobalUI } from "./global";
 import { supabase } from './api';
+import { getDatesOfWeek } from './utils'
 import "/css/global.css";
 import "/css/components.css";
 import "/css/kalender.css";
@@ -55,21 +56,6 @@ const monthNames = [
   "Januari", "Februari", "Mars", "April", "Maj", "Juni", 
   "Juli", "Augusti", "September", "Oktober", "November", "December"
 ];
-
-// Helper to calculate the exact Monday and Sunday dates for any given ISO week and year
-function getDatesOfWeek(weekNo: number, year: number): { start: string, end: string } {
-  const jan4 = new Date(year, 0, 4);
-  const dayOfWeek = jan4.getDay() || 7; 
-  const week1Monday = new Date(year, 0, 4 - dayOfWeek + 1);
-  
-  const targetMonday = new Date(week1Monday.getTime() + (weekNo - 1) * 7 * 24 * 60 * 60 * 1000);
-  const targetSunday = new Date(targetMonday.getTime() + 6 * 24 * 60 * 60 * 1000);
-
-  return {
-    start: targetMonday.toISOString().split('T')[0],
-    end: targetSunday.toISOString().split('T')[0]
-  };
-}
 
 // VIEW AND NAVIGATION FUNCTIONS
 function setupViewToggles(): void {
