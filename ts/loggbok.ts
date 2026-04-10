@@ -13,7 +13,7 @@ const REACTION_MAP: Record<string, { emoji: string, label: string }> = {
     'TACK':   { emoji: '🙏', label: 'Tack' }
 };
 
-const escapeHTML = (str: string) => {
+export const escapeHTML = (str: string) => {
     if (!str) return "";
     return str.toString().replace(/[&<>"']/g, m => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -163,7 +163,7 @@ function setupReactionListeners(caregiverId: string) {
     document.getElementById('history-container')?.addEventListener('click', handler);
 }
 
-function setupHistoryToggle() {
+export function setupHistoryToggle() {
     const btn = document.getElementById('btn-show-history');
     const container = document.getElementById('history-container');
     if (btn && container) {
