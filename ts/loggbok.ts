@@ -13,14 +13,14 @@ const REACTION_MAP: Record<string, { emoji: string, label: string }> = {
     'TACK':   { emoji: '🙏', label: 'Tack' }
 };
 
-const escapeHTML = (str: string) => {
+export const escapeHTML = (str: string) => {
     if (!str) return "";
     return str.toString().replace(/[&<>"']/g, m => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[m]!));
 };
 
-async function initLogbook(): Promise<void> {
+export async function initLogbook(): Promise<void> {
     await initGlobalUI();
     
     const { data: { session } } = await supabase.auth.getSession();
@@ -50,7 +50,7 @@ async function initLogbook(): Promise<void> {
         .subscribe();
 }
 
-async function loadPosts(caregiverId: string) {
+export async function loadPosts(caregiverId: string) {
     const todayContainer = document.getElementById('today-container');
     const historyContainer = document.getElementById('history-container');
 
@@ -97,7 +97,7 @@ async function loadPosts(caregiverId: string) {
     await loadIcons();
 }
 
-function renderPostCard(post: any, caregiverId: string) {
+export function renderPostCard(post: any, caregiverId: string) {
     const mediaHtml = (post.logbook_media || [])
         .map((m: any) => {
             if (!m.file_url || m.file_url.includes('<!doctype html>')) return '';
@@ -131,7 +131,7 @@ function renderPostCard(post: any, caregiverId: string) {
         </div>`;
 }
 
-function renderFilterBar(relations: any[]) {
+export function renderFilterBar(relations: any[]) {
     const container = document.getElementById('child-filter-container');
     if (!container) return;
     let html = `<button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" onclick="window.setFilter('all')">Alla barn</button>`;
@@ -150,7 +150,7 @@ function renderFilterBar(relations: any[]) {
     loadPosts(globalCaregiverId);
 };
 
-function setupReactionListeners(caregiverId: string) {
+export function setupReactionListeners(caregiverId: string) {
     const handler = async (e: Event) => {
         const btn = (e.target as HTMLElement).closest('.btn-react') as HTMLButtonElement;
         if (btn && !btn.disabled) {
@@ -163,7 +163,7 @@ function setupReactionListeners(caregiverId: string) {
     document.getElementById('history-container')?.addEventListener('click', handler);
 }
 
-function setupHistoryToggle() {
+export function setupHistoryToggle() {
     const btn = document.getElementById('btn-show-history');
     const container = document.getElementById('history-container');
     if (btn && container) {
@@ -174,9 +174,16 @@ function setupHistoryToggle() {
     }
 }
 
-function showToast(msg: string) {
+export function showToast(msg: string) {
     const toast = document.getElementById('notification-toast');
     if (toast) { toast.innerText = msg; toast.classList.remove('hidden'); setTimeout(() => toast.classList.add('hidden'), 4000); }
 }
 
-initLogbook();
+if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    // Kör bara tunga saker om vi inte är i en testmiljö (valfritt)
+}
+
+// Se till att denna inte körs automatiskt under test:
+if (typeof window !== 'undefined' && !window.__VITEST__) {
+    initLogbook();
+}
