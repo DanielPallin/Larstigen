@@ -23,17 +23,21 @@ test.describe('E2E: Profilsidan (Min skapade sida)', () => {
     }
   });
 
-  test('ska ladda profilsidans grundstruktur korrekt', async ({ page }) => {
-    // Vi navigerar till sidan
-    await page.goto('http://localhost:5173/pages/profil.html');
+test('ska ladda profilsidans grundstruktur korrekt', async ({ page }) => {
+    // 1. Navigera och vänta på att DOM-strukturen är laddad
+    await page.goto('http://localhost:5173/pages/profil.html', { 
+      waitUntil: 'domcontentloaded' 
+    });
 
-    // Kontrollera att din specifika container för profilen finns i HTML-koden
-    // Detta bevisar att din sida laddas in av Vite
+    // 2. Kontrollera containern
+    // Vi använder toBeVisible() eftersom den har inbyggd "auto-wait"
     const profileContainer = page.locator('#profile-container');
-    await expect(profileContainer).toBeDefined();
-    
-    // Kolla att navigeringsmenyn (som du skapat) är synlig
+    await expect(profileContainer).toBeVisible({ timeout: 5000 });
+
+    // 3. Kolla att navigeringsmenyn är synlig
     const bottomNav = page.locator('.bottom-nav');
     await expect(bottomNav).toBeVisible();
+    
+    console.log('Testet lyckades: Profilsidan och navigationen hittades!');
   });
 });
