@@ -58,7 +58,7 @@ const monthNames = [
 ];
 
 // VIEW AND NAVIGATION FUNCTIONS
-function setupViewToggles(): void {
+export function setupViewToggles(): void {
   const viewButtons = document.querySelectorAll<HTMLButtonElement>(".view-btn");
   const viewSections = document.querySelectorAll<HTMLElement>(".view-section");
 
