@@ -34,4 +34,8 @@ test.describe('Loggbok E2E Flow', () => {
       await expect(reactionBtn).toBeVisible();
     }
   });
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> aa5fcff8742ff25929c79979cd774bd386cc151d
