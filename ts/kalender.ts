@@ -184,9 +184,14 @@ async function fetchAndRenderWeeklySchedule(childId: string): Promise<void> {
                 ${dropOff} - ${pickUp}
               </div>
             </div>
-            <div class="status-indicator" style="color: ${statusColor}; font-size: 0.9rem;" title="Status: ${entry.approval_status}">
-              ${statusIcon} ${statusText}
+            
+            <div style="display: flex; align-items: center; gap: 15px;">
+              <div class="status-indicator" style="color: ${statusColor}; font-size: 0.9rem;" title="Status: ${entry.approval_status}">
+                ${statusIcon} ${statusText}
+              </div>
+              <button class="btn-edit-header btn-edit-exception" data-id="${entry.id}" data-date="${entry.date}">Redigera</button>
             </div>
+
           </div>
           ${entry.comment ? `<div style="font-size: 0.85rem; color: var(--text-muted); margin-left: 55px; margin-bottom: 10px;">💬 ${entry.comment}</div>` : ''}
         `;
@@ -214,7 +219,6 @@ async function fetchAndRenderWeeklySchedule(childId: string): Promise<void> {
       }
       fetchAndRenderWeeklySchedule(childId);
     });
-
   } catch (error) {
     console.error("Kunde inte hämta veckoschemat:", error);
     container.innerHTML = `<div class="card full-width"><p class="subtitle" style="color: red; text-align: center;">Kunde inte ladda schemat.</p></div>`;
