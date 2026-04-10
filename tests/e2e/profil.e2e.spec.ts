@@ -3,17 +3,16 @@ import { test, expect } from '@playwright/test';
 test.describe('E2E: Profilsidan (Min skapade sida)', () => {
 
   test('ska kontrollera att profilsidan kräver inloggning (Auth Guard)', async ({ page }) => {
-    // 1. Försök gå direkt till din profilsida
+    // 1. Försök gå direkt till /pages/profile.html
     await page.goto('http://localhost:5173/pages/profil.html');
 
     // 2. Kontrollera Auth Guard-logiken
-    // Om vi körs i CI (GitHub) med fejk-nycklar kan sidan ibland "hänga sig".
-    // Vi kollar därför om vi antingen har blivit utkastade ELLER om vi stannar på index.
-    await page.waitForTimeout(1000); // Ge omdirigeringen en sekund
+    // Vi kollar om vi blivit utkastade ELLER om vi stannar på index.
+    await page.waitForTimeout(1000);
     
     const url = page.url();
     if (url.includes('index.html') || url === 'http://localhost:5173/') {
-      // Om vi hamnade på startsidan fungerar din Auth Guard!
+      // Om vi hamnade på startsidan fungerar AuthGuard
       expect(true).toBe(true);
     } else {
       // Om vi är kvar på profilsidan, kolla om vi ser "Hämtar..." eller liknande
@@ -32,7 +31,7 @@ test('ska ladda profilsidans grundstruktur korrekt', async ({ page }) => {
     // 2. Kontrollera containern
     // Vi använder toBeVisible() eftersom den har inbyggd "auto-wait"
     const profileContainer = page.locator('#profile-container');
-    // await expect(profileContainer).toBeVisible({ timeout: 5000 });
+    // await expect(profileContainer).toBeVisible({ timeout: 5000 }); utsuddad för Hannas test
 
     // 3. Kolla att navigeringsmenyn är synlig
     const bottomNav = page.locator('.bottom-nav');

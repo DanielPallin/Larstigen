@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-// Nu importerar vi funktionen DIREKT från din profil.ts!
+// Nu importerar vi funktionen direkt från profil.ts
 import { getInitials } from '../../ts/profil'; 
 
 describe('Unit test: Profilsidan (profil.ts)', () => {
