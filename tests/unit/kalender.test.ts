@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 // Du måste exportera funktionen från kalender.ts för att kunna importera den här!
-import { getDatesOfWeek } from '../../ts/kalender'; 
+import { getDatesOfWeek } from '../../ts/utils'; 
 
 describe('Unit test: Kalenderns hjälpfunktioner (kalender.ts)', () => {
 
