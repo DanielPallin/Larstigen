@@ -1,33 +1,39 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderFilterBar } from "../../ts/loggbok";
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { setupHistoryToggle } from '../../ts/loggbok';
 
-const mockRelations = [{ child: { id: "1", first_name: "Elfie" } }];
+// Eftersom loggbok.ts kör initLogbook() automatiskt vid import, 
+// mockar vi supabase så att det inte kraschar testet.
+vi.mock('../../ts/api', () => ({
+  supabase: {
+    auth: { getSession: vi.fn().mockResolvedValue({ data: { session: null } }) },
+    channel: vi.fn().mockReturnValue({ on: vi.fn().mockReturnThis(), subscribe: vi.fn() })
+  }
+}));
 
-describe("Loggbok Integration - Filtrering", () => {
+describe('Loggbok Integration Test', () => {
+  
   beforeEach(() => {
-    document.body.innerHTML = `<div id="child-filter-container"></div>`;
-    
-    globalThis.setFilter = vi.fn((id) => {
-      const buttons = document.querySelectorAll(".filter-btn");
-      buttons.forEach(btn => btn.classList.remove("active"));
-      // Hitta knappen via data-attributet (dataset)
-      const activeBtn = [...buttons].find(btn => btn.dataset.id === id);
-      if (activeBtn) activeBtn.classList.add("active");
-    });
-
-    renderFilterBar(mockRelations);
+    // Sätt upp samma HTML-struktur som finns i loggbok.html
+    document.body.innerHTML = `
+      <button id="btn-show-history">Se tidigare dagar</button>
+      <div id="history-container" class="history-hidden"></div>
+    `;
   });
 
-  it('ska lägga till "active"-klass vid klick via dataset.id', () => {
-    // 1. Hitta knappen för Elfie
-    const btn = document.querySelector(".filter-btn[data-id='1']");
-    expect(btn).toBeDefined();
+  it('ska toggla klassen "show" och ändra knapptexten när man klickar på historik-knappen', () => {
+    setupHistoryToggle(); // Starta logiken
 
-    // 2. Hämta ID:t från dataset (precis som Code Review ville)
-    const filterId = btn.dataset.id;
-    
-    // 3. Kör filtret och verifiera klassen
-    globalThis.setFilter(filterId);
-    expect(btn.classList.contains("active")).toBe(true);
+    const btn = document.getElementById('btn-show-history');
+    const container = document.getElementById('history-container');
+
+    // 1. Klicka en gång (visa)
+    btn?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(container?.classList.contains('show')).toBe(true);
+    expect(btn?.innerText).toBe('Dölj tidigare dagar');
+
+    // 2. Klicka igen (dölj)
+    btn?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(container?.classList.contains('show')).toBe(false);
+    expect(btn?.innerText).toBe('Se tidigare dagar');
   });
 });
