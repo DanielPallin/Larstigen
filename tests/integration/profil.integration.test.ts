@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // 1. MOCKA API (Supabase)
-// Vi backar ur 'integration', backar ur 'tests', går in i 'ts' och hittar 'api.ts'
 vi.mock('../../ts/api', () => ({
   supabase: {
     auth: {
@@ -61,14 +60,12 @@ vi.mock('../../ts/api', () => ({
 }));
 
 // 2. MOCKA GLOBAL
-// Vi backar ur 'integration', backar ur 'tests', går in i 'ts' och hittar 'global.ts'
 vi.mock('../../ts/global', () => ({
   initGlobalUI: vi.fn()
 }));
 
 describe('Integrationstest: Profilsidan', () => {
   beforeEach(() => {
-    // 3. SKAPA EN LÅTSAS-DOM INFÖR VARJE TEST
     // Vi lägger in containern exakt så som den ser ut i din profil.html
     document.body.innerHTML = `
       <main class="container" id="profile-container">
@@ -85,12 +82,11 @@ describe('Integrationstest: Profilsidan', () => {
     // Låt funktionen arbeta klart i bakgrunden en kort sekund
     await new Promise(resolve => setTimeout(resolve, 50));
 
-    // 5. HÄMTA DET FÄRDIGA RESULTATET
+    // 5. Hämta resultat
     const container = document.getElementById('profile-container');
     const html = container?.innerHTML || '';
 
-    // 6. TESTA ATT RÄTT SAKER FINNS PÅ SKÄRMEN
-    // Testar Vårdnadshavaren
+    // 6. Testar Vårdnadshavaren
     expect(html).toContain('Hanna Testsson');
     expect(html).toContain('hanna@test.se');
     expect(html).toContain('Testgatan 1');
