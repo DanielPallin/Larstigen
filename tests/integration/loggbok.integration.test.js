@@ -1,48 +1,72 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderFilterBar } from '../../ts/loggbok';
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { renderFilterBar } from "../../ts/loggbok";
 
-describe('Loggbok Integration - Filtrering', () => {
+const mockRelations = [
+  { child: { id: "1", first_name: "Elfie" } },
+  { child: { id: "2", first_name: "Eily" } },
+];
+
+describe("Loggbok Integration - Filtrering", () => {
   beforeEach(() => {
-    // Återställ DOM inför varje test
-    document.body.innerHTML = `
-      <div id="child-filter-container"></div>
-      <div id="today-container"></div>
-    `;
-    
-    // Mocka global funktion som anropas via onclick i HTML
-    global.setFilter = vi.fn((id) => {
-      const btn = document.querySelector(`.filter-btn[data-id="${id}"]`);
-      if (btn) btn.classList.add('active');
+    // Sätt upp rätt container
+    document.body.innerHTML = `<div id="child-filter-container"></div>`;
+
+    // Mocka global setFilter (som HTML:en använder via onclick)
+    globalThis.setFilter = vi.fn((id) => {
+      const buttons = document.querySelectorAll(".filter-btn");
+
+      // Ta bort active från alla
+      buttons.forEach((btn) => btn.classList.remove("active"));
+
+      // Hitta knappen som har detta ID i sitt onclick-attribut
+      const activeBtn = [...buttons].find((btn) => {
+        const onclickAttr = btn.getAttribute("onclick") || "";
+        return onclickAttr.includes(`'${id}'`);
+      });
+
+      if (activeBtn) activeBtn.classList.add("active");
     });
+
+    // Kör den riktiga funktionen från din källkod
+    renderFilterBar(mockRelations);
   });
 
-  it('ska rendera rätt antal filterknappar', () => {
-    const mockRelations = [
-      { child: { id: '1', first_name: 'Elfie' } },
-      { child: { id: '2', first_name: 'Eily' } }
-    ];
+  it("ska rendera rätt antal filterknappar", () => {
+    const buttons = document.querySelectorAll(".filter-btn");
 
-    // Vi simulerar vad renderFilterBar gör
-    const container = document.getElementById('child-filter-container');
-    container.innerHTML = mockRelations.map(rel => 
-      `<button class="filter-btn" data-id="${rel.child.id}">${rel.child.first_name}</button>`
-    ).join('');
+    // "Alla barn" + Elfie + Eily = 3 knappar
+    expect(buttons.length).toBe(3);
 
-    const buttons = document.querySelectorAll('.filter-btn');
-    expect(buttons.length).toBe(2);
-    expect(buttons[0].textContent).toBe('Elfie');
+    const texts = [...buttons].map((btn) => btn.textContent.trim());
+
+    expect(texts).toContain("Elfie");
+    expect(texts).toContain("Eily");
   });
 
   it('ska lägga till "active"-klass vid klick', () => {
-    const container = document.getElementById('child-filter-container');
-    container.innerHTML = `<button class="filter-btn" data-id="123">Test</button>`;
-    
-    const btn = container.querySelector('.filter-btn');
-    
-    // Simulera klickflöde
-    const filterId = btn.getAttribute('data-id');
-    global.setFilter(filterId);
+    const buttons = [...document.querySelectorAll(".filter-btn")];
 
-    expect(btn.classList.contains('active')).toBe(true);
+    // 1. Hitta knappen via text (eftersom vi vet att den skapas så)
+    const btn = buttons.find((button) => 
+      button.textContent.trim().includes("Elfie")
+    );
+
+    expect(btn).toBeDefined();
+
+    // 2. Hämta ID:t från onclick-attributet (eftersom data-id saknas i din HTML)
+    const onclickAttr = btn.getAttribute("onclick");
+    expect(onclickAttr).toContain("setFilter");
+
+    // Extrahera ID:t (strängen mellan enkla citationstecken)
+    const match = onclickAttr.match(/'([^']+)'/);
+    const filterId = match ? match[1] : null;
+
+    expect(filterId).toBe("1"); // Elfie har ID "1" i vår mock-data
+
+    // 3. Simulera anropet som onclick skulle gjort
+    globalThis.setFilter(filterId);
+
+    // 4. Verifiera att knappen nu har fått klassen "active"
+    expect(btn.classList.contains("active")).toBe(true);
   });
 });
