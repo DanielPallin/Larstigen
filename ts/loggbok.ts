@@ -13,9 +13,10 @@ const REACTION_MAP: Record<string, { emoji: string, label: string }> = {
     'TACK':   { emoji: '🙏', label: 'Tack' }
 };
 
-const escapeHTML = (str: string) => {
-    if (!str) return "";
-    return str.toString().replace(/[&<>"']/g, m => ({
+// EXPORT: Behövs för Unit Tests
+export const escapeHTML = (str: string | null | undefined): string => {
+    if (str === null || str === undefined || str === "") return "";
+    return str.toString().replace(/[&<>"']/g, (m: string) => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[m]!));
 };
@@ -41,7 +42,6 @@ async function initLogbook(): Promise<void> {
     setupReactionListeners(caregiver.id);
     await loadPosts(caregiver.id);
 
-    // Realtime för notiser (Toast)
     supabase.channel('notice-updates')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notice' }, (payload) => {
             showToast(payload.new.title || "Ny uppdatering i loggboken!");
@@ -50,7 +50,7 @@ async function initLogbook(): Promise<void> {
         .subscribe();
 }
 
-async function loadPosts(caregiverId: string) {
+export async function loadPosts(caregiverId: string) {
     const todayContainer = document.getElementById('today-container');
     const historyContainer = document.getElementById('history-container');
 
@@ -97,7 +97,7 @@ async function loadPosts(caregiverId: string) {
     await loadIcons();
 }
 
-function renderPostCard(post: any, caregiverId: string) {
+export function renderPostCard(post: any, caregiverId: string) {
     const mediaHtml = (post.logbook_media || [])
         .map((m: any) => {
             if (!m.file_url || m.file_url.includes('<!doctype html>')) return '';
@@ -131,14 +131,19 @@ function renderPostCard(post: any, caregiverId: string) {
         </div>`;
 }
 
-function renderFilterBar(relations: any[]) {
+// EXPORT: Behövs för Integration Tests
+export function renderFilterBar(relations: any[]) {
     const container = document.getElementById('child-filter-container');
     if (!container) return;
-    let html = `<button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" onclick="window.setFilter('all')">Alla barn</button>`;
+    
+    // Lagt till data-id för att stödja dataset.id i testerna
+    let html = `<button class="filter-btn ${currentFilter === 'all' ? 'active' : ''}" data-id="all" onclick="window.setFilter('all')">Alla barn</button>`;
+    
     relations.forEach((rel, index) => {
         const isActive = currentFilter === rel.child.id;
         const color = childColors[index % childColors.length];
         html += `<button class="filter-btn ${isActive ? 'active' : ''}" 
+                 data-id="${rel.child.id}"
                  style="${isActive ? `background: ${color}; border-color: ${color};` : ''}"
                  onclick="window.setFilter('${rel.child.id}')">${rel.child.first_name}</button>`;
     });
@@ -179,4 +184,7 @@ function showToast(msg: string) {
     if (toast) { toast.innerText = msg; toast.classList.remove('hidden'); setTimeout(() => toast.classList.add('hidden'), 4000); }
 }
 
-initLogbook();
+// Förhindra automatisk körning under testmiljö om nödvändigt
+if (typeof window !== 'undefined' && ! (window as any).VITEST) {
+    initLogbook();
+}
