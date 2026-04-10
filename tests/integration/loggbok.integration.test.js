@@ -16,7 +16,7 @@ describe("Loggbok Integration - Filtrering", () => {
       const buttons = document.querySelectorAll(".filter-btn");
 
       // Ta bort active från alla
-      buttons.forEach((btn) => btn.classList.remove("active"));
+      buttons.forEach((btn) => btn.classList.remove("active")); 
 
       // Hitta knappen som har detta ID i sitt onclick-attribut
       const activeBtn = [...buttons].find((btn) => {
